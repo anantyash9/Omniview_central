@@ -74,21 +74,28 @@ export function BriefingTimeline() {
           <CarouselContent>
             {briefs.map((brief, index) => (
               <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                <div className="p-1">
-                  <Card>
+                <div className="p-1 flex flex-col h-full">
+                  <Card className="flex-grow">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-semibold flex items-center gap-2">
                             <Bot className="text-primary" /> AI Generated Brief
                         </CardTitle>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span>{brief.timestamp}</span>
-                        </div>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm">{brief.brief}</p>
                     </CardContent>
                   </Card>
+                  {/* Timeline track element */}
+                  <div className="relative w-full h-8 mt-2">
+                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border -translate-y-1/2" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-primary border-4 border-background" />
+                    <div className="absolute top-full -translate-y-1/2 left-1/2 -translate-x-1/2 bg-background px-2">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>{brief.timestamp}</span>
+                        </div>
+                    </div>
+                  </div>
                 </div>
               </CarouselItem>
             ))}
