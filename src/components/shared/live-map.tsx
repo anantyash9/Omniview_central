@@ -127,7 +127,7 @@ export function LiveMap() {
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
 
-  const center = { lat: 12.978813, lng: 77.5996565 };
+  const center = { lat: 18.9842089, lng: 72.8200753 };
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden shadow-md border">
