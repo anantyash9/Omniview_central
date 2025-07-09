@@ -72,10 +72,8 @@ export function BriefingTimeline() {
                             isSelected && isMostRecent && "border-primary shadow-lg",
                             isSelected && !isMostRecent && "border-foreground"
                         )}>
-                            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                                    <Bot className="text-primary" /> AI Generated Brief
-                                </CardTitle>
+                            <CardHeader className="flex flex-row items-center justify-end pb-2">
+                                <Bot className="h-5 w-5 text-primary" />
                             </CardHeader>
                             <CardContent>
                             <p className="text-sm">{brief.brief}</p>
