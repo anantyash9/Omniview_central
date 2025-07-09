@@ -187,7 +187,7 @@ export function OperationsAgentGrid() {
           </Card>
 
         <div className="lg:col-span-2 flex flex-col gap-4">
-            <div className="relative grid grid-cols-2 grid-rows-2 gap-4 flex-grow">
+            <div className="relative grid grid-cols-2 grid-rows-2 gap-8 flex-grow">
                 <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" aria-hidden="true">
                 <defs>
                     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto" className="fill-green-500">
@@ -249,18 +249,18 @@ export function OperationsAgentGrid() {
                                 isReceiver && 'border-green-500 ring-2 ring-green-500 shadow-2xl scale-105'
                             )}
                         >
-                            <CardHeader className="flex flex-row items-center space-x-2 space-y-0 pb-2">
-                                <div className={cn('p-1.5 rounded-lg', isSender ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
-                                    <agent.icon className="w-5 h-5" />
+                            <CardHeader className="flex flex-row items-center space-x-2 space-y-0 p-3 pb-2">
+                                <div className={cn('p-1 rounded-lg', isSender ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
+                                    <agent.icon className="w-4 h-4" />
                                 </div>
-                                <CardTitle className="text-base">{agent.name}</CardTitle>
+                                <CardTitle className="text-sm font-semibold">{agent.name}</CardTitle>
                             </CardHeader>
-                            <CardContent className="flex-grow flex items-center justify-center">
-                                <p className="text-xs text-muted-foreground italic text-center">
+                            <CardContent className="flex-grow flex items-center justify-center p-3 text-center">
+                                <p className="text-xs text-muted-foreground italic">
                                     {statuses[agent.id as AgentId]}
                                 </p>
                             </CardContent>
-                            <div className="flex items-center justify-center gap-2 border-t p-2">
+                            <div className="flex items-center justify-center gap-1 border-t p-1.5">
                                 <span className="text-xs font-semibold">Inputs:</span>
                                 {Object.entries(agent.inputs).map(([key, Icon]) => (
                                     <div key={key} className={cn(
