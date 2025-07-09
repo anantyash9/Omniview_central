@@ -7,14 +7,14 @@ import type { Persona } from '@/lib/types';
 
 const personaConfig = {
   Commander: { icon: Shield, label: 'Commander' },
-  Analyst: { icon: Bot, label: 'Analyst' },
+  'Operations Agent': { icon: Bot, label: 'Operations Agent' },
   'Field Responder': { icon: User, label: 'Field Responder' },
   'Drone Operator': { icon: RadioTower, label: 'Drone Operator' },
 };
 
 export function PersonaSwitcher() {
   const { persona, setPersona } = usePersona();
-  const CurrentIcon = personaConfig[persona].icon;
+  const CurrentIcon = personaConfig[persona as keyof typeof personaConfig].icon;
 
   return (
     <Select value={persona} onValueChange={(value: string) => setPersona(value as Persona)}>
