@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -64,7 +65,7 @@ export function OperationsAgentGrid() {
   const [activeScenarioIndex, setActiveScenarioIndex] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [activeInput, setActiveInput] = useState<{ agent: AgentId, input: InputType } | null>(null);
-  const [transmission, setTransmission] = useState<string | null>(null);
+  const [transmission, setTransmission] = useState<{ message: string; position: { x: string; y: string } } | null>(null);
 
   const resetState = () => {
     setStatuses(defaultStatuses);
@@ -85,7 +86,10 @@ export function OperationsAgentGrid() {
     const scenario = scenarios[activeScenarioIndex];
     if (currentStep >= scenario.steps.length) {
       // Scenario finished
-      setTimeout(resetState, 3000);
+      setTimeout(() => {
+        resetState();
+        setActiveScenarioIndex(null);
+      }, 3000);
       return;
     }
   
@@ -98,8 +102,21 @@ export function OperationsAgentGrid() {
 
       // 2. Data transmission starts
       const transmissionTimer = setTimeout(() => {
+        const fromPos = AGENTS[step.from].position;
+        const toPos = AGENTS[step.to].position;
+        const fromX = fromPos.includes('col-start-1') ? 25 : 75;
+        const fromY = fromPos.includes('row-start-1') ? 25 : 75;
+        const toX = toPos.includes('col-start-1') ? 25 : 75;
+        const toY = toPos.includes('row-start-1') ? 25 : 75;
+        
         setActiveConnection({ from: step.from, to: step.to });
-        setTransmission(`FROM: ${AGENTS[step.from].name} -> TO: ${AGENTS[step.to].name}\n\n"${step.message}"`);
+        setTransmission({
+          message: step.message,
+          position: {
+            x: `${(fromX + toX) / 2}%`,
+            y: `${(fromY + toY) / 2}%`,
+          }
+        });
         setStatuses(prev => ({ ...prev, [step.to]: step.toStatus }));
       }, 1500);
   
@@ -173,7 +190,7 @@ export function OperationsAgentGrid() {
             <div className="relative grid grid-cols-2 grid-rows-2 gap-4 flex-grow">
                 <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" aria-hidden="true">
                 <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto" className="fill-primary">
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto" className="fill-green-500">
                         <polygon points="0 0, 10 3.5, 0 7" />
                     </marker>
                 </defs>
@@ -189,14 +206,34 @@ export function OperationsAgentGrid() {
                 {activeConnection && (
                     <path
                     d={getPathD(activeConnection.from, activeConnection.to)}
-                    className="stroke-primary"
-                    strokeWidth="3"
+                    className="stroke-green-500"
+                    strokeWidth="4"
                     markerEnd="url(#arrowhead)"
                     style={{ strokeDasharray: '1000', strokeDashoffset: '1000', animation: 'dash 1.5s linear forwards' }}
                     />
                 )}
                 </svg>
-                <style>{`@keyframes dash { to { stroke-dashoffset: 0; } }`}</style>
+                <style>{`
+                  @keyframes dash { to { stroke-dashoffset: 0; } }
+                  @keyframes fadeIn { 
+                    from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } 
+                    to { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
+                  }
+                `}</style>
+                
+                {transmission && (
+                  <div
+                    key={currentStep} // Key re-triggers animation on change
+                    className="absolute p-2 bg-background/90 border rounded-lg text-xs shadow-xl z-20 text-center -translate-x-1/2 -translate-y-1/2 max-w-[200px]"
+                    style={{
+                      left: transmission.position.x,
+                      top: transmission.position.y,
+                      animation: 'fadeIn 0.5s forwards',
+                    }}
+                  >
+                    {transmission.message}
+                  </div>
+                )}
                 
                 {Object.values(AGENTS).map((agent) => {
                     const isSender = activeConnection?.from === agent.id;
@@ -238,16 +275,6 @@ export function OperationsAgentGrid() {
                     );
                 })}
             </div>
-            <Card className="h-28">
-                <CardHeader className='p-2'>
-                    <CardTitle className="text-sm">Live Transmission Log</CardTitle>
-                </CardHeader>
-                <CardContent className='p-2'>
-                  <div className="text-xs font-mono whitespace-pre-wrap text-green-600">
-                    {transmission ? `> ${transmission}` : '> Awaiting transmission...'}
-                  </div>
-                </CardContent>
-            </Card>
         </div>
       </div>
     </div>
