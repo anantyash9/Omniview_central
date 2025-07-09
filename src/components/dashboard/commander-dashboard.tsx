@@ -7,6 +7,7 @@ import { BriefingTimeline } from '@/components/commander/briefing-timeline';
 import { AggregateStats } from '@/components/commander/aggregate-stats';
 import { OnGroundTeams } from '@/components/commander/on-ground-teams';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { SocialMediaIntelligence } from '../commander/social-media-intelligence';
 
 export function CommanderDashboard() {
   const { incidents } = usePersona();
@@ -22,6 +23,8 @@ export function CommanderDashboard() {
           <LiveMap />
         </ApiProviderWrapper>
       </div>
+
+      <SocialMediaIntelligence />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>

@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { Persona, Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, SocialMediaPost } from '@/lib/types';
-import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CAMERAS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS } from '@/lib/mock-data';
+import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CAMERAS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS } from '@/lib/mock-data';
 
 interface PersonaContextType {
   persona: Persona;
@@ -102,12 +102,14 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         }));
       });
       
-      // Add a random social media post
-      if (Math.random() > 0.6) { // 40% chance every 1s
+      // Add a random social media post and let them accumulate
+      if (Math.random() > 0.8 && socialMediaPosts.length < 15) { // Slower chance, capped at 15
         const highDensityPoints = INITIAL_CROWD_DENSITY.filter(p => p.density > 0.5);
         if (highDensityPoints.length > 0) {
             const targetPoint = highDensityPoints[Math.floor(Math.random() * highDensityPoints.length)];
             const newPostId = `post-${Date.now()}`;
+            const mockPostText = MOCK_SOCIAL_POSTS[Math.floor(Math.random() * MOCK_SOCIAL_POSTS.length)];
+            
             const newPost: SocialMediaPost = {
                 id: newPostId,
                 location: {
@@ -115,23 +117,17 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
                     lng: targetPoint.location.lng + (Math.random() - 0.5) * 0.001,
                 },
                 author: `@user${Math.floor(Math.random() * 900) + 100}`,
-                text: "Wow, it's packed here! Amazing view. #OmniView"
+                text: mockPostText,
             };
 
             setSocialMediaPosts(prevPosts => [...prevPosts, newPost]);
-
-            // Remove the post after a few seconds to make it "linger"
-            setTimeout(() => {
-                setSocialMediaPosts(prevPosts => prevPosts.filter(p => p.id !== newPostId));
-            }, 4000); // Linger for 4 seconds
         }
       }
 
-
-    }, 1000); // Update every second for smoother animation
+    }, 1000); // Update every second
 
     return () => clearInterval(interval);
-  }, []);
+  }, [socialMediaPosts.length]); // Rerun effect logic based on post count
 
   return (
     <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, predictions, crowdDensity, briefs, socialMediaPosts }}>

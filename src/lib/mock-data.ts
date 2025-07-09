@@ -97,3 +97,18 @@ export const INITIAL_BRIEFS: Briefing[] = [
         brief: "A crowd surge is reported at the north gate. Potential for crushes. Severity is High. All available units are being directed to the location."
     }
 ];
+
+export const MOCK_SOCIAL_POSTS: string[] = [
+    "The lines to get in are insane! Been waiting 45 minutes. #OmniView #Fail",
+    "Incredible atmosphere here at #OmniView! The energy is electric!",
+    "Can't find any water fountains and the bottles are so expensive. Pretty frustrating. #OmniView",
+    "Security team was super helpful when I got lost. Big thanks! #OmniView",
+    "The sound system is amazing! Can hear everything perfectly from my seat. #OmniView",
+    "Why is the north gate so crowded? Seems unsafe. #OmniView",
+    "Just saw the drone fly over, so cool! #OmniView #Tech",
+    "Parking was a nightmare. Took an hour just to get into the lot. #OmniView",
+    "Food is surprisingly good and not too overpriced. Well done #OmniView.",
+    "The light show was absolutely breathtaking! #OmniView #Amazing",
+    "Restrooms near section C are a total mess. Needs attention. #OmniView",
+    "Love the band, but it's way too crowded up front. Hard to breathe. #OmniView",
+];
