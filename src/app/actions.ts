@@ -2,6 +2,8 @@
 
 import { generateIncidentSuggestions as generate } from '@/ai/flows/generate-incident-suggestions';
 import type { GenerateIncidentSuggestionsInput, GenerateIncidentSuggestionsOutput } from '@/ai/flows/generate-incident-suggestions';
+import { generateCommanderBrief as generateBrief } from '@/ai/flows/generate-commander-brief';
+import type { GenerateCommanderBriefInput, GenerateCommanderBriefOutput } from '@/ai/flows/generate-commander-brief';
 
 export async function generateIncidentSuggestions(input: GenerateIncidentSuggestionsInput): Promise<GenerateIncidentSuggestionsOutput | { error: string }> {
   try {
@@ -13,6 +15,15 @@ export async function generateIncidentSuggestions(input: GenerateIncidentSuggest
   }
 }
 
+export async function generateCommanderBrief(input: GenerateCommanderBriefInput): Promise<GenerateCommanderBriefOutput | { error: string }> {
+  try {
+    const output = await generateBrief(input);
+    return output;
+  } catch (e: any) {
+    console.error(e);
+    return { error: e.message || 'An unexpected error occurred.' };
+  }
+}
 
 export async function getPlacePhotoReferences(query: string): Promise<string[]> {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
