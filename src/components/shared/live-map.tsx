@@ -206,8 +206,8 @@ export function LiveMap() {
             onCloseClick={() => setSelectedUnit(null)}
           >
             <div className="p-1 max-w-xs">
-              <h3 className="font-bold">{unit.type} {unit.id}</h3>
-              <p className="text-sm">{unit.status}</p>
+              <h3 className="font-bold">{selectedUnit.type} {selectedUnit.id}</h3>
+              <p className="text-sm">{selectedUnit.status}</p>
             </div>
           </InfoWindow>
         )}
