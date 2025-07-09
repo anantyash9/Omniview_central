@@ -166,7 +166,7 @@ export function OperationsAgentGrid() {
     const fromNode = NODE_CONFIG[fromId];
     const toNode = NODE_CONFIG[toId];
     if (!fromNode || !toNode) return '';
-    return `M ${fromNode.x}% ${fromNode.y}% L ${toNode.x}% ${toNode.y}%`;
+    return `M ${fromNode.x} ${fromNode.y} L ${toNode.x} ${toNode.y}`;
   }
 
   return (
@@ -207,7 +207,12 @@ export function OperationsAgentGrid() {
           </Card>
 
         <div className="lg:col-span-2 relative min-h-[450px] bg-muted/20 rounded-lg border">
-            <svg className="absolute top-0 left-0 w-full h-full" aria-hidden="true">
+            <svg 
+              className="absolute top-0 left-0 w-full h-full" 
+              aria-hidden="true" 
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
               <defs>
                   <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto" className="fill-green-500">
                       <polygon points="0 0, 10 3.5, 0 7" />
@@ -216,7 +221,7 @@ export function OperationsAgentGrid() {
               
               {/* Static lines */}
               {STATIC_CONNECTIONS.map(({from, to}) => (
-                 <path key={`${from}-${to}`} d={getPathD(from as NodeId, to as NodeId)} className="stroke-border" strokeWidth="1" strokeDasharray="4" />
+                 <path key={`${from}-${to}`} d={getPathD(from as NodeId, to as NodeId)} className="stroke-border" strokeWidth="0.5" strokeDasharray="2" />
               ))}
               
               {/* Active connection animation */}
@@ -224,7 +229,7 @@ export function OperationsAgentGrid() {
                   <path
                   d={getPathD(activeConnection.from, activeConnection.to)}
                   className="stroke-green-500"
-                  strokeWidth="3"
+                  strokeWidth="1"
                   markerEnd="url(#arrowhead)"
                   style={{ 
                     strokeDasharray: '1000', 
@@ -284,3 +289,5 @@ export function OperationsAgentGrid() {
     </div>
   );
 }
+
+    
