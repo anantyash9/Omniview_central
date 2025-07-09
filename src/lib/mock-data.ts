@@ -27,12 +27,13 @@ export const INITIAL_UNITS: Unit[] = [
 ];
 
 export const INITIAL_CAMERAS: Camera[] = [
-  { id: 'cam-1', name: 'Plaza Cam 1', isAlert: false, location: { lat: 18.9845, lng: 72.8205 }, heading: 235, pitch: 10 },
-  { id: 'cam-2', name: 'North Gate Cam', isAlert: true, location: { lat: 18.9855, lng: 72.8200 }, heading: 180, pitch: 5 },
-  { id: 'cam-3', name: 'West Corridor', isAlert: false, location: { lat: 18.9839, lng: 72.8190 }, heading: 90, pitch: 0 },
-  { id: 'cam-4', name: 'East Entrance', isAlert: false, location: { lat: 18.9830, lng: 72.8212 }, heading: 0, pitch: 2 },
-  { id: 'cam-5', name: 'Rooftop Cam A', isAlert: false, location: { lat: 18.9842, lng: 72.8201 }, heading: 120, pitch: 20 },
-  { id: 'cam-6', name: 'Service Entry', isAlert: false, location: { lat: 18.9825, lng: 72.8198 }, heading: 300, pitch: 5 },
+  // Adjusted locations to be on roads with known Street View imagery
+  { id: 'cam-1', name: 'Main Gate Cam', isAlert: false, location: { lat: 18.9846, lng: 72.8191 }, heading: 120, pitch: 5 },
+  { id: 'cam-2', name: 'North Road Cam', isAlert: true, location: { lat: 18.9858, lng: 72.8188 }, heading: 270, pitch: 2 },
+  { id: 'cam-3', name: 'SW Corner', isAlert: false, location: { lat: 18.9826, lng: 72.8183 }, heading: 45, pitch: 0 },
+  { id: 'cam-4', name: 'Eastern Road', isAlert: false, location: { lat: 18.9830, lng: 72.8218 }, heading: 330, pitch: 5 },
+  { id: 'cam-5', name: 'Paddock View', isAlert: false, location: { lat: 18.9842, lng: 72.8201 }, heading: 200, pitch: 10 },
+  { id: 'cam-6', name: 'South Gate Cam', isAlert: false, location: { lat: 18.9818, lng: 72.8206 }, heading: 0, pitch: 3 },
 ];
 
 export const INITIAL_PREDICTIONS: PredictionPolygon[] = [
