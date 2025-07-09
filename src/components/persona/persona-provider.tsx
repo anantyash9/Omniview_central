@@ -2,8 +2,8 @@
 
 import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
-import type { Persona, Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, SocialMediaPost } from '@/lib/types';
-import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CAMERAS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS } from '@/lib/mock-data';
+import type { Persona, Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, SocialMediaPost, CrowdFlowData } from '@/lib/types';
+import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CAMERAS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS, INITIAL_CROWD_FLOW } from '@/lib/mock-data';
 
 interface PersonaContextType {
   persona: Persona;
@@ -15,6 +15,7 @@ interface PersonaContextType {
   crowdDensity: CrowdDensityPoint[];
   briefs: Briefing[];
   socialMediaPosts: SocialMediaPost[];
+  crowdFlow: CrowdFlowData[];
 }
 
 const PersonaContext = createContext<PersonaContextType | undefined>(undefined);
@@ -28,11 +29,15 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   const [crowdDensity, setCrowdDensity] = useState<CrowdDensityPoint[]>(INITIAL_CROWD_DENSITY);
   const [briefs, setBriefs] = useState<Briefing[]>(INITIAL_BRIEFS);
   const [socialMediaPosts, setSocialMediaPosts] = useState<SocialMediaPost[]>([]);
+  const [crowdFlow, setCrowdFlow] = useState<CrowdFlowData[]>(INITIAL_CROWD_FLOW);
   const droneVelocityRef = useRef({ vLat: (Math.random() - 0.5) * 0.00004, vLng: (Math.random() - 0.5) * 0.00004 });
+  const timeRef = useRef(0);
 
   useEffect(() => {
     // Simulate real-time data updates
     const interval = setInterval(() => {
+      timeRef.current += 1;
+
       setUnits(prevUnits => {
         return prevUnits.map(unit => {
           // Smooth, bounded movement for the drone
@@ -102,6 +107,24 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         }));
       });
       
+      // Update crowd flow data every 5 seconds to simulate new data points appearing
+      if (timeRef.current % 5 === 0) {
+        setCrowdFlow(prevFlow => {
+          const lastDataPoint = prevFlow[prevFlow.length - 1];
+          const newTime = new Date(new Date(`1970-01-01T${lastDataPoint.time}:00Z`).getTime() + 5 * 60000).toTimeString().slice(0, 5);
+          
+          const newPoint: CrowdFlowData = {
+              time: newTime,
+              "North Gate": Math.max(50, lastDataPoint["North Gate"] + Math.floor((Math.random() - 0.5) * 40)),
+              "Main Entrance": Math.max(80, lastDataPoint["Main Entrance"] + Math.floor((Math.random() - 0.5) * 50)),
+              "South Gate": Math.max(40, lastDataPoint["South Gate"] + Math.floor((Math.random() - 0.5) * 30)),
+          };
+          
+          return [...prevFlow.slice(1), newPoint]; // Keep the array size constant
+        });
+      }
+
+
       // Add a random social media post and let them accumulate
       if (Math.random() > 0.8 && socialMediaPosts.length < 15) { // Slower chance, capped at 15
         const highDensityPoints = INITIAL_CROWD_DENSITY.filter(p => p.density > 0.5);
@@ -130,7 +153,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, [socialMediaPosts.length]); // Rerun effect logic based on post count
 
   return (
-    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, predictions, crowdDensity, briefs, socialMediaPosts }}>
+    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, predictions, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
       {children}
     </PersonaContext.Provider>
   );

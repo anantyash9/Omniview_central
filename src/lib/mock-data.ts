@@ -1,4 +1,4 @@
-import type { Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing } from "@/lib/types";
+import type { Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, CrowdFlowData } from "@/lib/types";
 
 export const INITIAL_INCIDENTS: Incident[] = [
   {
@@ -54,6 +54,20 @@ export const INITIAL_CROWD_DENSITY: CrowdDensityPoint[] = [
     { location: { lat: 18.9849, lng: 72.8210 }, density: 0.9 },
     { location: { lat: 18.9839, lng: 72.8196 }, density: 0.4 },
 ];
+
+export const INITIAL_CROWD_FLOW: CrowdFlowData[] = [
+  { time: "14:00", "North Gate": 120, "Main Entrance": 200, "South Gate": 80 },
+  { time: "14:05", "North Gate": 125, "Main Entrance": 210, "South Gate": 85 },
+  { time: "14:10", "North Gate": 130, "Main Entrance": 220, "South Gate": 90 },
+  { time: "14:15", "North Gate": 150, "Main Entrance": 230, "South Gate": 95 },
+  { time: "14:20", "North Gate": 160, "Main Entrance": 240, "South Gate": 100 },
+  { time: "14:25", "North Gate": 170, "Main Entrance": 250, "South Gate": 105 },
+  { time: "14:30", "North Gate": 180, "Main Entrance": 260, "South Gate": 110 },
+  { time: "14:35", "North Gate": 190, "Main Entrance": 255, "South Gate": 115 },
+  { time: "14:40", "North Gate": 200, "Main Entrance": 250, "South Gate": 120 },
+  { time: "14:45", "North Gate": 220, "Main Entrance": 240, "South Gate": 125 },
+];
+
 
 export const INITIAL_BRIEFS: Briefing[] = [
     {

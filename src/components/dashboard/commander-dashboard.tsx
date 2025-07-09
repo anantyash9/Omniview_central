@@ -8,6 +8,7 @@ import { AggregateStats } from '@/components/commander/aggregate-stats';
 import { OnGroundTeams } from '@/components/commander/on-ground-teams';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { SocialMediaIntelligence } from '../commander/social-media-intelligence';
+import { CrowdMovementAnalysis } from '../commander/crowd-movement-analysis';
 
 export function CommanderDashboard() {
   const { incidents } = usePersona();
@@ -34,15 +35,22 @@ export function CommanderDashboard() {
           <CardContent>
             <ScrollArea className="h-[300px]">
               <div className="space-y-4 pr-4">
-                {incidents.map(incident => (
-                  <IncidentCard key={incident.id} incident={incident} />
-                ))}
+                {incidents.length > 0 ? (
+                  incidents.map(incident => (
+                    <IncidentCard key={incident.id} incident={incident} />
+                  ))
+                ) : (
+                  <p className="text-muted-foreground">No active incidents.</p>
+                )}
               </div>
             </ScrollArea>
           </CardContent>
         </Card>
         
-        <OnGroundTeams />
+        <div className="space-y-4">
+            <OnGroundTeams />
+            <CrowdMovementAnalysis />
+        </div>
       </div>
     </div>
   );

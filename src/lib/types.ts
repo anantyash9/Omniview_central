@@ -46,3 +46,10 @@ export type SocialMediaPost = {
   author: string;
   text: string;
 };
+
+export type CrowdFlowData = {
+  time: string;
+  "North Gate": number;
+  "Main Entrance": number;
+  "South Gate": number;
+};
