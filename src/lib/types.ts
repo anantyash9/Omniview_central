@@ -25,6 +25,9 @@ export type Camera = {
   id: string;
   name: string;
   isAlert: boolean;
+  location: { lat: number; lng: number };
+  heading: number;
+  pitch: number;
 };
 
 export type PredictionPolygon = {
