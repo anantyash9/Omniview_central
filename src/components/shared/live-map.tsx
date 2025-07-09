@@ -47,11 +47,9 @@ const unitIcons = {
 // A component to render a heatmap layer since it's not exported from the library
 const HeatmapLayer = ({
   data,
-  radius,
   opacity,
 }: {
   data: CrowdDensityPoint[];
-  radius?: number;
   opacity?: number;
 }) => {
   const map = useMap();
@@ -86,9 +84,32 @@ const HeatmapLayer = ({
   }, [heatmap, data]);
 
   useEffect(() => {
-    if (!heatmap) return;
-    heatmap.setOptions({ radius, opacity });
-  }, [heatmap, radius, opacity]);
+    if (!map || !heatmap) return;
+
+    heatmap.set('opacity', opacity);
+
+    const updateRadius = () => {
+        const zoom = map.getZoom();
+        if (zoom) {
+            // Scale the radius based on zoom level for a more consistent feel
+            const newRadius = 30 * Math.pow(2, zoom - 17);
+            heatmap.set('radius', newRadius);
+        } else {
+            heatmap.set('radius', 30);
+        }
+    };
+
+    updateRadius(); // Set initial radius
+
+    const zoomListener = map.addListener('zoom_changed', updateRadius);
+
+    return () => {
+      if(zoomListener) {
+        google.maps.event.removeListener(zoomListener);
+      }
+    };
+  }, [map, heatmap, opacity]);
+
 
   return null;
 };
@@ -139,7 +160,7 @@ export function LiveMap() {
         disableDefaultUI={true}
       >
         {/* Crowd Density Heatmap */}
-        <HeatmapLayer data={crowdDensity} radius={30} opacity={0.7} />
+        <HeatmapLayer data={crowdDensity} opacity={0.7} />
 
         {/* Incidents */}
         {incidents.map((incident) => (
