@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { Persona, Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, SocialMediaPost } from '@/lib/types';
 import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CAMERAS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS } from '@/lib/mock-data';
 
@@ -28,22 +28,68 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   const [crowdDensity, setCrowdDensity] = useState<CrowdDensityPoint[]>(INITIAL_CROWD_DENSITY);
   const [briefs, setBriefs] = useState<Briefing[]>(INITIAL_BRIEFS);
   const [socialMediaPosts, setSocialMediaPosts] = useState<SocialMediaPost[]>([]);
+  const droneVelocityRef = useRef({ vLat: (Math.random() - 0.5) * 0.00004, vLng: (Math.random() - 0.5) * 0.00004 });
 
   useEffect(() => {
     // Simulate real-time data updates
     const interval = setInterval(() => {
-      // Move a unit and a drone
       setUnits(prevUnits => {
         return prevUnits.map(unit => {
-          if (unit.id === 'unit-1' || unit.id === 'drone-1') {
+          // Smooth, bounded movement for the drone
+          if (unit.id === 'drone-1') {
+            let { vLat, vLng } = droneVelocityRef.current;
+            
+            // Add some randomness to the velocity for a meandering path
+            vLat += (Math.random() - 0.5) * 0.00002;
+            vLng += (Math.random() - 0.5) * 0.00002;
+
+            // Constrain speed
+            const maxSpeed = 0.00004;
+            const speed = Math.sqrt(vLat * vLat + vLng * vLng);
+            if (speed > maxSpeed) {
+              vLat = (vLat / speed) * maxSpeed;
+              vLng = (vLng / speed) * maxSpeed;
+            }
+
+            let newLat = unit.location.lat + vLat;
+            let newLng = unit.location.lng + vLng;
+
+            // Bounce off the edges of a bounding box around the venue
+            const bounds = {
+                north: 18.987,
+                south: 18.981,
+                east: 72.823,
+                west: 72.817
+            };
+
+            if (newLat > bounds.north || newLat < bounds.south) {
+                vLat = -vLat;
+                newLat = unit.location.lat + vLat;
+            }
+            if (newLng > bounds.east || newLng < bounds.west) {
+                vLng = -vLng;
+                newLng = unit.location.lng + vLng;
+            }
+            
+            droneVelocityRef.current = { vLat, vLng };
+
+            return {
+              ...unit,
+              location: { lat: newLat, lng: newLng },
+            };
+          }
+          
+          // Jittery, random movement for the personnel unit
+          if (unit.id === 'unit-1') {
             return {
               ...unit,
               location: {
-                lat: unit.location.lat + (Math.random() - 0.5) * 0.0002,
-                lng: unit.location.lng + (Math.random() - 0.5) * 0.0002,
+                lat: unit.location.lat + (Math.random() - 0.5) * 0.0001,
+                lng: unit.location.lng + (Math.random() - 0.5) * 0.0001,
               },
             };
           }
+
           return unit;
         });
       });
@@ -57,7 +103,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
       });
       
       // Add a random social media post
-      if (Math.random() > 0.6) { // 40% chance every 5s
+      if (Math.random() > 0.6) { // 40% chance every 1s
         const highDensityPoints = INITIAL_CROWD_DENSITY.filter(p => p.density > 0.5);
         if (highDensityPoints.length > 0) {
             const targetPoint = highDensityPoints[Math.floor(Math.random() * highDensityPoints.length)];
@@ -82,7 +128,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
       }
 
 
-    }, 5000); // Update every 5 seconds
+    }, 1000); // Update every second for smoother animation
 
     return () => clearInterval(interval);
   }, []);
