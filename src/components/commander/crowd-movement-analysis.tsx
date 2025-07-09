@@ -76,8 +76,8 @@ export function CrowdMovementAnalysis() {
           id: personId++,
           x,
           y,
-          vx: (Math.random() - 0.5) * 1,
-          vy: (Math.random() - 0.5) * 1,
+          vx: (Math.random() - 0.5) * 0.2,
+          vy: (Math.random() - 0.5) * 0.2,
           gate: gateName as keyof typeof GATE_CONFIG,
         });
       }
@@ -94,20 +94,21 @@ export function CrowdMovementAnalysis() {
           let { x, y, vx, vy } = p;
 
           // Add random jitter
-          vx += (Math.random() - 0.5) * 0.2;
-          vy += (Math.random() - 0.5) * 0.2;
+          vx += (Math.random() - 0.5) * 0.04;
+          vy += (Math.random() - 0.5) * 0.04;
 
           // Add gentle pull towards center
-          const pullX = (SIMULATION_WIDTH / 2 - x) * 0.001;
-          const pullY = (SIMULATION_HEIGHT / 2 - y) * 0.001;
+          const pullX = (SIMULATION_WIDTH / 2 - x) * 0.0002;
+          const pullY = (SIMULATION_HEIGHT / 2 - y) * 0.0002;
           vx += pullX;
           vy += pullY;
 
           // Limit speed
           const speed = Math.sqrt(vx * vx + vy * vy);
-          if (speed > 1) {
-            vx = (vx / speed) * 1;
-            vy = (vy / speed) * 1;
+          const maxSpeed = 0.2;
+          if (speed > maxSpeed) {
+            vx = (vx / speed) * maxSpeed;
+            vy = (vy / speed) * maxSpeed;
           }
 
           x += vx;
