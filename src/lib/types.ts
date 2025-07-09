@@ -34,3 +34,8 @@ export type PredictionPolygon = {
   id: string;
   points: { lat: number; lng: number }[];
 };
+
+export type Briefing = {
+  timestamp: string;
+  brief: string;
+};

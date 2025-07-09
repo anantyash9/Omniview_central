@@ -1,4 +1,4 @@
-import type { Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint } from "@/lib/types";
+import type { Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing } from "@/lib/types";
 
 export const INITIAL_INCIDENTS: Incident[] = [
   {
@@ -53,4 +53,47 @@ export const INITIAL_CROWD_DENSITY: CrowdDensityPoint[] = [
     { location: { lat: 18.9844, lng: 72.8206 }, density: 0.7 },
     { location: { lat: 18.9849, lng: 72.8210 }, density: 0.9 },
     { location: { lat: 18.9839, lng: 72.8196 }, density: 0.4 },
+];
+
+export const INITIAL_BRIEFS: Briefing[] = [
+    {
+        timestamp: "14:00",
+        brief: "All systems operational. Crowd density is low and stable across all sectors. No active incidents to report. On-ground teams are at their posts."
+    },
+    {
+        timestamp: "14:05",
+        brief: "Monitoring a slight increase in crowd density near the north gate. All other sectors remain stable. Units are holding their positions."
+    },
+    {
+        timestamp: "14:10",
+        brief: "Crowd density at the north gate has stabilized. System status remains green. No unusual activity detected on camera feeds. Weather is clear."
+    },
+    {
+        timestamp: "14:15",
+        brief: "A small, contained argument was resolved by on-site personnel near Sector B. No further action needed. All other areas are calm."
+    },
+    {
+        timestamp: "14:20",
+        brief: "Drone-1 is conducting a routine aerial sweep. Live feed shows normal crowd distribution. All units report normal status. No new alerts."
+    },
+    {
+        timestamp: "14:25",
+        brief: "Slight congestion reported at the main entrance turnstiles. Unit-2 is monitoring. No immediate security concern. Other operations are nominal."
+    },
+    {
+        timestamp: "14:30",
+        brief: "An unattended bag has been reported near the main entrance. Unit-1 is deployed to investigate. Severity is currently assessed as Medium."
+    },
+    {
+        timestamp: "14:35",
+        brief: "Unit-1 has secured the unattended bag. The area is cordoned off. The situation is under control. No immediate threat detected. Crowd rerouted."
+    },
+    {
+        timestamp: "14:40",
+        brief: "The unattended bag incident is resolved. It contained personal belongings. The cordon has been lifted. Normal operations are resuming in the area."
+    },
+    {
+        timestamp: "14:45",
+        brief: "A crowd surge is reported at the north gate. Potential for crushes. Severity is High. All available units are being directed to the location."
+    }
 ];

@@ -2,8 +2,8 @@
 
 import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
-import type { Persona, Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint } from '@/lib/types';
-import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CAMERAS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY } from '@/lib/mock-data';
+import type { Persona, Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing } from '@/lib/types';
+import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CAMERAS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS } from '@/lib/mock-data';
 
 interface PersonaContextType {
   persona: Persona;
@@ -13,6 +13,7 @@ interface PersonaContextType {
   cameras: Camera[];
   predictions: PredictionPolygon[];
   crowdDensity: CrowdDensityPoint[];
+  briefs: Briefing[];
 }
 
 const PersonaContext = createContext<PersonaContextType | undefined>(undefined);
@@ -24,6 +25,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   const [cameras, setCameras] = useState<Camera[]>(INITIAL_CAMERAS);
   const [predictions, setPredictions] = useState<PredictionPolygon[]>(INITIAL_PREDICTIONS);
   const [crowdDensity, setCrowdDensity] = useState<CrowdDensityPoint[]>(INITIAL_CROWD_DENSITY);
+  const [briefs, setBriefs] = useState<Briefing[]>(INITIAL_BRIEFS);
 
   useEffect(() => {
     // Simulate real-time data updates
@@ -58,7 +60,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, predictions, crowdDensity }}>
+    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, predictions, crowdDensity, briefs }}>
       {children}
     </PersonaContext.Provider>
   );
