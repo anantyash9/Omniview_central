@@ -3,9 +3,8 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Cpu, FileText, Send, Shield, Camera, Airplay, MessageSquare, Users, AreaChart, Bot, Clock } from 'lucide-react';
+import { Cpu, FileText, Send, Shield, Camera, Airplay, MessageSquare, Users, AreaChart, Bot, Clock, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 
 const NODE_CONFIG = {
@@ -207,24 +206,51 @@ export function OperationsAgentGrid() {
               <CardDescription>Click an action to replay the agent communication sequence.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-                <ScrollArea className='h-[250px] pr-4'>
+              <ScrollArea className="h-[250px] pr-4">
+                <div className="space-y-3">
                   {scenarios.map((scenario, index) => (
-                    <Button
+                    <button
                       key={index}
-                      variant={activeScenarioIndex === index ? "default" : "outline"}
-                      className="w-full justify-start text-left h-auto py-2 mb-2"
                       onClick={() => handleScenarioClick(index)}
+                      className={cn(
+                        'w-full text-left p-3 rounded-lg border transition-colors',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                        activeScenarioIndex === index
+                          ? 'bg-primary text-primary-foreground border-primary shadow-lg'
+                          : 'bg-muted/30 hover:bg-muted/80'
+                      )}
                     >
                       <div className="flex flex-col">
                         <span className="font-semibold">{scenario.title}</span>
-                        <span className="text-xs text-muted-foreground font-normal whitespace-normal">{scenario.description}</span>
+                        <span
+                          className={cn(
+                            'text-xs font-normal whitespace-normal mt-1',
+                            activeScenarioIndex === index
+                              ? 'text-primary-foreground/80'
+                              : 'text-muted-foreground'
+                          )}
+                        >
+                          {scenario.description}
+                        </span>
+                        <div
+                          className={cn(
+                            'flex items-center gap-2 mt-3 pt-2 border-t',
+                            activeScenarioIndex === index
+                              ? 'border-primary-foreground/20 text-primary-foreground/90 text-sm'
+                              : 'border-border text-muted-foreground text-xs font-medium'
+                          )}
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                          <span>Resolved in {formatTime(scenario.totalTime)}</span>
+                        </div>
                       </div>
-                    </Button>
+                    </button>
                   ))}
-                </ScrollArea>
+                </div>
+              </ScrollArea>
             </CardContent>
             <CardFooter className="flex-col items-start border-t pt-4">
-                <p className="text-sm font-semibold text-muted-foreground flex items-center gap-2"><Clock className="h-4 w-4" /> Time to Resolution</p>
+                <p className="text-sm font-semibold text-muted-foreground flex items-center gap-2"><Clock className="h-4 w-4" /> Simulation Time</p>
                 <p className="text-4xl font-bold font-mono text-primary">
                     {formatTime(elapsedTime)}
                 </p>
