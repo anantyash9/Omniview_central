@@ -10,8 +10,8 @@ import {
 } from '@vis.gl/react-google-maps';
 import { useState, useEffect } from 'react';
 import { usePersona } from '@/components/persona/persona-provider';
-import type { Incident, Unit, CrowdDensityPoint } from '@/lib/types';
-import { AlertTriangle, User, Car } from 'lucide-react';
+import type { Incident, Unit, CrowdDensityPoint, SocialMediaPost } from '@/lib/types';
+import { AlertTriangle, User, Car, MessageCircle } from 'lucide-react';
 
 declare const google: any;
 
@@ -144,9 +144,10 @@ const Polygon = (options: google.maps.PolygonOptions) => {
 
 
 export function LiveMap() {
-  const { persona, incidents, units, predictions, crowdDensity } = usePersona();
+  const { persona, incidents, units, predictions, crowdDensity, socialMediaPosts } = usePersona();
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
+  const [selectedPost, setSelectedPost] = useState<SocialMediaPost | null>(null);
 
   const center = { lat: 18.9842089, lng: 72.8200753 };
 
@@ -185,6 +186,32 @@ export function LiveMap() {
               <p className="text-sm">{selectedIncident.description}</p>
             </div>
           </InfoWindow>
+        )}
+
+        {/* Social Media Posts */}
+        {socialMediaPosts.map((post) => (
+            <AdvancedMarker
+                key={post.id}
+                position={post.location}
+                onClick={() => setSelectedPost(post)}
+            >
+                <div className="p-1.5 bg-sky-500 rounded-full shadow-lg animate-pulse">
+                    <MessageCircle className="h-4 w-4 text-white" />
+                </div>
+            </AdvancedMarker>
+        ))}
+
+        {selectedPost && (
+            <InfoWindow
+                position={selectedPost.location}
+                onCloseClick={() => setSelectedPost(null)}
+                pixelOffset={[0, -20]}
+            >
+                <div className="p-1 max-w-xs">
+                    <p className="font-bold text-sky-600">{selectedPost.author}</p>
+                    <p className="text-sm">{selectedPost.text}</p>
+                </div>
+            </InfoWindow>
         )}
 
         {/* Units */}

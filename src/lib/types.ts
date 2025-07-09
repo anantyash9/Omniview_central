@@ -31,11 +31,18 @@ export type Camera = {
 };
 
 export type PredictionPolygon = {
-  id: string;
+  id:string;
   points: { lat: number; lng: number }[];
 };
 
 export type Briefing = {
   timestamp: string;
   brief: string;
+};
+
+export type SocialMediaPost = {
+  id: string;
+  location: { lat: number; lng: number };
+  author: string;
+  text: string;
 };
