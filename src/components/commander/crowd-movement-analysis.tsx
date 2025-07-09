@@ -76,8 +76,8 @@ export function CrowdMovementAnalysis() {
           id: personId++,
           x,
           y,
-          vx: (Math.random() - 0.5) * 0.2,
-          vy: (Math.random() - 0.5) * 0.2,
+          vx: (Math.random() - 0.5) * 0.04,
+          vy: (Math.random() - 0.5) * 0.04,
           gate: gateName as keyof typeof GATE_CONFIG,
         });
       }
@@ -94,18 +94,18 @@ export function CrowdMovementAnalysis() {
           let { x, y, vx, vy } = p;
 
           // Add random jitter
-          vx += (Math.random() - 0.5) * 0.04;
-          vy += (Math.random() - 0.5) * 0.04;
+          vx += (Math.random() - 0.5) * 0.008;
+          vy += (Math.random() - 0.5) * 0.008;
 
           // Add gentle pull towards center
-          const pullX = (SIMULATION_WIDTH / 2 - x) * 0.0002;
-          const pullY = (SIMULATION_HEIGHT / 2 - y) * 0.0002;
+          const pullX = (SIMULATION_WIDTH / 2 - x) * 0.00004;
+          const pullY = (SIMULATION_HEIGHT / 2 - y) * 0.00004;
           vx += pullX;
           vy += pullY;
 
           // Limit speed
           const speed = Math.sqrt(vx * vx + vy * vy);
-          const maxSpeed = 0.2;
+          const maxSpeed = 0.04;
           if (speed > maxSpeed) {
             vx = (vx / speed) * maxSpeed;
             vy = (vy / speed) * maxSpeed;
@@ -127,16 +127,14 @@ export function CrowdMovementAnalysis() {
       animationFrameId.current = requestAnimationFrame(animate);
     };
 
-    if (people.length > 0) {
-        animationFrameId.current = requestAnimationFrame(animate);
-    }
+    animationFrameId.current = requestAnimationFrame(animate);
 
     return () => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [people.length]);
+  }, []);
 
   return (
     <Card>
