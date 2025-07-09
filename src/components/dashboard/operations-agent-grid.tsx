@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Cpu, FileText, Send, Shield, Camera, Airplay, MessageSquare, Users, AreaChart, Bot } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Cpu, FileText, Send, Shield, Camera, Airplay, MessageSquare, Users, AreaChart, Bot, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '../ui/scroll-area';
@@ -48,35 +48,47 @@ const STATIC_CONNECTIONS = [
 const scenarios = [
   {
     title: 'Unattended Package',
-    description: 'An unattended package was identified and investigated.',
+    description: 'An unattended package was identified, investigated, and cleared.',
+    totalTime: 310,
     steps: [
-      { from: 'camera', to: 'intel', duration: 2000, status: { intel: 'Analyzing Camera Feed...' } },
-      { from: 'intel', to: 'planning', message: 'Unattended package spotted. Requesting plan.', duration: 3000, status: { intel: 'Awaiting Plan...', planning: 'Devising Action Plan...' } },
-      { from: 'groundUnits', to: 'planning', duration: 1500, status: { planning: 'Checking unit proximity...' } },
-      { from: 'planning', to: 'dispatch', message: 'Plan: Dispatch unit-1 to investigate. Establish 50m cordon.', duration: 3000, status: { planning: 'Plan Sent.', dispatch: 'Receiving Orders...' } },
-      { from: 'dispatch', to: 'commander', message: 'SITREP: Unit-1 responding to suspicious package.', duration: 2500, status: { dispatch: 'Executing Plan...', commander: 'Monitoring...' } },
+      { from: 'camera', to: 'intel', time: 5, duration: 2000, status: { intel: 'Analyzing Camera Feed...' } },
+      { from: 'intel', to: 'planning', time: 20, duration: 3000, message: 'Unattended package spotted. Requesting plan.', status: { intel: 'Awaiting Plan...', planning: 'Devising Action Plan...' } },
+      { from: 'groundUnits', to: 'planning', time: 35, duration: 1500, status: { planning: 'Checking unit proximity...' } },
+      { from: 'planning', to: 'dispatch', time: 55, duration: 3000, message: 'Plan: Dispatch unit-1 to investigate. Establish 50m cordon.', status: { planning: 'Plan Sent.', dispatch: 'Receiving Orders...' } },
+      { from: 'dispatch', to: 'commander', time: 70, duration: 2500, message: 'SITREP: Unit-1 responding to suspicious package.', status: { dispatch: 'Executing Plan...', commander: 'Monitoring...' } },
+      { from: 'groundUnits', to: 'dispatch', time: 180, duration: 2000, status: { dispatch: 'Awaiting on-site confirmation...'}, message: 'Unit-1 on site.' },
+      { from: 'dispatch', to: 'planning', time: 200, duration: 2500, message: 'Unit-1 on site. Cordon established.', status: { planning: 'Acknowledged. Awaiting clearance.'} },
+      { from: 'drone', to: 'intel', time: 240, duration: 2000, status: { intel: 'Verifying cordon with drone view.'} },
+      { from: 'intel', to: 'commander', time: 300, duration: 3000, message: 'VERIFICATION: Package is benign, personal belongings found.', status: { commander: 'Stand down unit.'} },
+      { from: 'dispatch', to: 'commander', time: 310, duration: 2000, message: 'SITREP: Incident resolved. Unit-1 returning to post.', status: { commander: 'Acknowledged.'} },
     ],
   },
   {
     title: 'Crowd Surge Mitigation',
     description: 'High crowd density was detected and managed at North Gate.',
+    totalTime: 190,
     steps: [
-      { from: 'crowdSim', to: 'planning', duration: 2000, status: { planning: 'Analyzing Crowd Data...' } },
-      { from: 'drone', to: 'intel', duration: 2000, status: { intel: 'Corroborating with drone feed...' } },
-      { from: 'intel', to: 'planning', message: 'Confirmed: High density at North Gate.', duration: 3000, status: { planning: 'Updating plan with new intel...' } },
-      { from: 'planning', to: 'dispatch', message: 'Plan: Reroute Sector 4. Dispatch unit-2 to monitor.', duration: 3000, status: { dispatch: 'Executing Reroute...' } },
-      { from: 'dispatch', to: 'commander', message: 'SITREP: Crowd surge managed. Unit-2 on site.', duration: 2000, status: { commander: 'Acknowledged.' } },
+      { from: 'crowdSim', to: 'planning', time: 10, duration: 2000, status: { planning: 'Analyzing Crowd Data...' } },
+      { from: 'drone', to: 'intel', time: 25, duration: 2000, status: { intel: 'Corroborating with drone feed...' } },
+      { from: 'intel', to: 'planning', time: 40, duration: 3000, message: 'Confirmed: High density at North Gate.', status: { planning: 'Updating plan with new intel...' } },
+      { from: 'planning', to: 'dispatch', time: 60, duration: 3000, message: 'Plan: Reroute Sector 4. Dispatch unit-2 to monitor.', status: { dispatch: 'Executing Reroute...' } },
+      { from: 'dispatch', to: 'commander', time: 75, duration: 2000, message: 'SITREP: Crowd surge managed. Unit-2 on site.', status: { commander: 'Acknowledged.' } },
+      { from: 'crowdSim', to: 'planning', time: 180, duration: 2500, status: { planning: 'Verifying flow...' } },
+      { from: 'planning', to: 'commander', time: 190, duration: 2000, message: 'VERIFICATION: Crowd flow normalized at North Gate.', status: { commander: 'Situation Resolved.'} },
     ],
   },
    {
     title: 'Medical Emergency',
     description: 'Attendee required medical assistance in the main concourse.',
+    totalTime: 210,
     steps: [
-      { from: 'social', to: 'intel', duration: 2000, status: { intel: 'Monitoring social media...' } },
-      { from: 'intel', to: 'planning', message: 'Social media report of medical emergency. Requesting confirmation.', duration: 3000, status: { planning: 'Cross-referencing...' } },
-      { from: 'camera', to: 'intel', duration: 2000, status: { intel: 'Confirming via Cam-5...' } },
-      { from: 'intel', to: 'planning', message: 'Confirmed. Medical emergency at food court.', duration: 2000, status: { planning: 'Dispatching medical...' } },
-      { from: 'planning', to: 'dispatch', message: 'ACTION: Dispatch M-1 to food court.', duration: 3000, status: { dispatch: 'Medical unit dispatched.' } },
+      { from: 'social', to: 'intel', time: 15, duration: 2000, status: { intel: 'Monitoring social media...' } },
+      { from: 'intel', to: 'planning', time: 30, duration: 3000, message: 'Social media report of medical emergency. Requesting confirmation.', status: { planning: 'Cross-referencing...' } },
+      { from: 'camera', to: 'intel', time: 50, duration: 2000, status: { intel: 'Confirming via Cam-5...' } },
+      { from: 'intel', to: 'planning', time: 65, duration: 2000, message: 'Confirmed. Medical emergency at food court.', status: { planning: 'Dispatching medical...' } },
+      { from: 'planning', to: 'dispatch', time: 80, duration: 3000, message: 'ACTION: Dispatch M-1 to food court.', status: { dispatch: 'Medical unit dispatched.' } },
+      { from: 'groundUnits', to: 'dispatch', time: 200, duration: 2500, message: 'Medic unit M-1 has arrived on-site.', status: { dispatch: 'Awaiting patient status...'} },
+      { from: 'dispatch', to: 'commander', time: 210, duration: 2000, message: 'SITREP: Patient is stable and being treated.', status: { commander: 'Acknowledged.'} },
     ],
   },
 ];
@@ -89,22 +101,30 @@ const defaultStatuses: Record<AgentId, string> = {
   commander: 'Overseeing...',
 };
 
+const formatTime = (totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
+
 export function OperationsAgentGrid() {
   const [statuses, setStatuses] = useState<Record<AgentId, string>>(defaultStatuses);
   const [activeConnection, setActiveConnection] = useState<{ from: NodeId, to: NodeId } | null>(null);
   const [activeScenarioIndex, setActiveScenarioIndex] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [transmission, setTransmission] = useState<{ message: string; position: { x: string; y: string } } | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   const resetState = () => {
     setStatuses(defaultStatuses);
     setActiveConnection(null);
     setTransmission(null);
     setCurrentStep(0);
+    setElapsedTime(0);
   }
 
   const handleScenarioClick = (index: number) => {
-    if (activeScenarioIndex === index) { // Allow re-clicking to reset
+    if (activeScenarioIndex === index) {
         resetState();
         setActiveScenarioIndex(null);
     } else {
@@ -118,23 +138,23 @@ export function OperationsAgentGrid() {
   
     const scenario = scenarios[activeScenarioIndex];
     if (currentStep >= scenario.steps.length) {
+      setElapsedTime(scenario.totalTime);
       setTimeout(() => {
         resetState();
         setActiveScenarioIndex(null);
-      }, 3000);
+      }, 4000);
       return;
     }
   
     const step = scenario.steps[currentStep];
   
     const stepTimeout = setTimeout(() => {
-      // 1. Set active connection and statuses
       setActiveConnection({ from: step.from as NodeId, to: step.to as NodeId });
       if (step.status) {
         setStatuses(prev => ({ ...prev, ...step.status }));
       }
+      setElapsedTime(step.time);
 
-      // 2. If there's a message, prepare it for display
       if (step.message) {
         const fromNode = NODE_CONFIG[step.from as NodeId];
         const toNode = NODE_CONFIG[step.to as NodeId];
@@ -147,15 +167,14 @@ export function OperationsAgentGrid() {
         });
       }
       
-      // 3. Set timer to advance to next step
       const nextStepTimer = setTimeout(() => {
         setActiveConnection(null);
         setTransmission(null);
         setCurrentStep(prev => prev + 1);
-      }, step.duration - 500); // End transmission a bit before next step
+      }, step.duration - 500); 
   
       return () => clearTimeout(nextStepTimer);
-    }, currentStep === 0 ? 50 : 500); // Pause between steps
+    }, currentStep === 0 ? 50 : 800); 
   
     return () => clearTimeout(stepTimeout);
   
@@ -188,7 +207,7 @@ export function OperationsAgentGrid() {
               <CardDescription>Click an action to replay the agent communication sequence.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-                <ScrollArea className='h-full pr-4'>
+                <ScrollArea className='h-[250px] pr-4'>
                   {scenarios.map((scenario, index) => (
                     <Button
                       key={index}
@@ -204,6 +223,12 @@ export function OperationsAgentGrid() {
                   ))}
                 </ScrollArea>
             </CardContent>
+            <CardFooter className="flex-col items-start border-t pt-4">
+                <p className="text-sm font-semibold text-muted-foreground flex items-center gap-2"><Clock className="h-4 w-4" /> Time to Resolution</p>
+                <p className="text-4xl font-bold font-mono text-primary">
+                    {formatTime(elapsedTime)}
+                </p>
+            </CardFooter>
           </Card>
 
         <div className="lg:col-span-2 relative min-h-[450px] bg-muted/20 rounded-lg border">
@@ -219,12 +244,10 @@ export function OperationsAgentGrid() {
                   </marker>
               </defs>
               
-              {/* Static lines */}
               {STATIC_CONNECTIONS.map(({from, to}) => (
                  <path key={`${from}-${to}`} d={getPathD(from as NodeId, to as NodeId)} className="stroke-border" strokeWidth="0.5" strokeDasharray="2" />
               ))}
               
-              {/* Active connection animation */}
               {activeConnection && (
                   <path
                   d={getPathD(activeConnection.from, activeConnection.to)}
@@ -243,7 +266,7 @@ export function OperationsAgentGrid() {
             
             {transmission && (
                 <div
-                key={currentStep} // Key re-triggers animation on change
+                key={currentStep} 
                 className="absolute p-2 bg-background/90 border rounded-lg text-xs shadow-xl z-20 text-center -translate-x-1/2 -translate-y-1/2 max-w-[150px]"
                 style={{
                     left: transmission.position.x,
@@ -289,5 +312,3 @@ export function OperationsAgentGrid() {
     </div>
   );
 }
-
-    
