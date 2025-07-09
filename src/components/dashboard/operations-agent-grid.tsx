@@ -13,8 +13,8 @@ const NODE_CONFIG = {
   camera: { id: 'camera', name: 'Camera Feeds', icon: Camera, type: 'input', x: 10, y: 5 },
   drone: { id: 'drone', name: 'Drone Feeds', icon: Airplay, type: 'input', x: 40, y: 5 },
   social: { id: 'social', name: 'Social Media', icon: MessageSquare, type: 'input', x: 70, y: 5 },
-  crowdSim: { id: 'crowdSim', name: 'Crowd Sim', icon: AreaChart, type: 'input', x: 25, y: 92 },
-  groundUnits: { id: 'groundUnits', name: 'Ground Units', icon: Users, type: 'input', x: 75, y: 92 },
+  groundUnits: { id: 'groundUnits', name: 'Ground Units', icon: Users, type: 'input', x: 25, y: 92 },
+  crowdSim: { id: 'crowdSim', name: 'Crowd Sim', icon: AreaChart, type: 'input', x: 75, y: 92 },
 
   // Agents
   intel: { id: 'intel', name: 'Intel Agent', icon: Cpu, type: 'agent', x: 25, y: 35 },
