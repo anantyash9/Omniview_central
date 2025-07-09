@@ -29,6 +29,7 @@ export function CrowdMovementAnalysis() {
   const { crowdFlow } = usePersona();
   const [people, setPeople] = useState<Person[]>([]);
   const animationFrameId = useRef<number>();
+  const personIdCounter = useRef(0);
 
   const latestFlow = useMemo(() => {
      if (!crowdFlow || crowdFlow.length === 0) {
@@ -37,7 +38,7 @@ export function CrowdMovementAnalysis() {
      return crowdFlow[crowdFlow.length - 1];
   }, [crowdFlow]);
 
-  const totalPeople = useMemo(() => {
+  const totalPeopleEstimate = useMemo(() => {
     if (!latestFlow) return 0;
     const total = Object.values(latestFlow).reduce((sum, val) => {
         if (typeof val === 'number') {
@@ -47,46 +48,74 @@ export function CrowdMovementAnalysis() {
     }, 0) as number;
     return Math.floor(total / 4);
   }, [latestFlow]);
-  
 
+  // Effect to add/remove people based on changing flow data
   useEffect(() => {
     if (!latestFlow) return;
 
-    const newPeople: Person[] = [];
-    let personId = 0;
-
-    Object.entries(GATE_CONFIG).forEach(([gateName, config]) => {
-      const gateFlow = latestFlow[gateName as keyof typeof GATE_CONFIG] || 0;
-      const count = Math.floor(gateFlow / 4); // Adjust density of simulation
-
-      for (let i = 0; i < count; i++) {
-        let x = 0, y = 0;
-        if (config.position === 'top') {
-          x = Math.random() * (SIMULATION_WIDTH * 0.6) + (SIMULATION_WIDTH * 0.2);
-          y = Math.random() * 20;
-        } else if (config.position === 'bottom') {
-          x = Math.random() * (SIMULATION_WIDTH * 0.6) + (SIMULATION_WIDTH * 0.2);
-          y = SIMULATION_HEIGHT - Math.random() * 20;
-        } else { // left
-          x = Math.random() * 20;
-          y = Math.random() * (SIMULATION_HEIGHT * 0.6) + (SIMULATION_HEIGHT * 0.2);
+    setPeople(prevPeople => {
+        const currentCount = prevPeople.length;
+        const targetCount = totalPeopleEstimate;
+        
+        if (currentCount === targetCount) {
+            return prevPeople;
         }
 
-        newPeople.push({
-          id: personId++,
-          x,
-          y,
-          vx: (Math.random() - 0.5) * 0.04,
-          vy: (Math.random() - 0.5) * 0.04,
-          gate: gateName as keyof typeof GATE_CONFIG,
-        });
-      }
+        let newPeople = [...prevPeople];
+
+        if (currentCount < targetCount) {
+            // Add people
+            const peopleToAdd = targetCount - currentCount;
+            for (let i = 0; i < peopleToAdd; i++) {
+                // A simple way to distribute new people based on gate traffic proportions
+                const northWeight = latestFlow['North Gate'] || 0;
+                const mainWeight = latestFlow['Main Entrance'] || 0;
+                const southWeight = latestFlow['South Gate'] || 0;
+                const totalWeight = northWeight + mainWeight + southWeight;
+                const gateRoulette = totalWeight > 0 ? Math.random() * totalWeight : Math.random() * 3;
+
+                let gateName: keyof typeof GATE_CONFIG;
+                if (gateRoulette < northWeight) {
+                    gateName = 'North Gate';
+                } else if (gateRoulette < northWeight + mainWeight) {
+                    gateName = 'Main Entrance';
+                } else {
+                    gateName = 'South Gate';
+                }
+                const config = GATE_CONFIG[gateName];
+
+                let x = 0, y = 0;
+                if (config.position === 'top') {
+                    x = Math.random() * (SIMULATION_WIDTH * 0.6) + (SIMULATION_WIDTH * 0.2);
+                    y = Math.random() * 20;
+                } else if (config.position === 'bottom') {
+                    x = Math.random() * (SIMULATION_WIDTH * 0.6) + (SIMULATION_WIDTH * 0.2);
+                    y = SIMULATION_HEIGHT - Math.random() * 20;
+                } else { // left
+                    x = Math.random() * 20;
+                    y = Math.random() * (SIMULATION_HEIGHT * 0.6) + (SIMULATION_HEIGHT * 0.2);
+                }
+
+                newPeople.push({
+                    id: personIdCounter.current++,
+                    x, y,
+                    vx: (Math.random() - 0.5) * 0.008,
+                    vy: (Math.random() - 0.5) * 0.008,
+                    gate: gateName,
+                });
+            }
+        } else {
+            // Remove people
+            const peopleToRemove = currentCount - targetCount;
+            newPeople.splice(newPeople.length - peopleToRemove, peopleToRemove);
+        }
+        
+        return newPeople;
     });
-
-    setPeople(newPeople);
-  }, [latestFlow]);
+  }, [latestFlow, totalPeopleEstimate]);
 
 
+  // Effect for animation loop
   useEffect(() => {
     const animate = () => {
       setPeople(prevPeople =>
@@ -94,18 +123,18 @@ export function CrowdMovementAnalysis() {
           let { x, y, vx, vy } = p;
 
           // Add random jitter
-          vx += (Math.random() - 0.5) * 0.008;
-          vy += (Math.random() - 0.5) * 0.008;
+          vx += (Math.random() - 0.5) * 0.0016;
+          vy += (Math.random() - 0.5) * 0.0016;
 
           // Add gentle pull towards center
-          const pullX = (SIMULATION_WIDTH / 2 - x) * 0.00004;
-          const pullY = (SIMULATION_HEIGHT / 2 - y) * 0.00004;
+          const pullX = (SIMULATION_WIDTH / 2 - x) * 0.000008;
+          const pullY = (SIMULATION_HEIGHT / 2 - y) * 0.000008;
           vx += pullX;
           vy += pullY;
 
           // Limit speed
           const speed = Math.sqrt(vx * vx + vy * vy);
-          const maxSpeed = 0.04;
+          const maxSpeed = 0.008;
           if (speed > maxSpeed) {
             vx = (vx / speed) * maxSpeed;
             vy = (vy / speed) * maxSpeed;
@@ -173,7 +202,7 @@ export function CrowdMovementAnalysis() {
               <span className="h-2 w-2 rounded-full bg-chart-3" /> South Gate
           </div>
           <div className="absolute bottom-2 right-2 flex items-center gap-2 px-3 py-1 bg-background/80 rounded-full text-xs font-semibold border shadow-sm">
-              <Users className="h-3 w-3" /> Crowd Est: {totalPeople}
+              <Users className="h-3 w-3" /> Crowd Est: {totalPeopleEstimate}
           </div>
         </div>
       </CardContent>
