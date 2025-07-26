@@ -1,12 +1,6 @@
 import type { Incident, Unit, Camera, CrowdDensityPoint, Briefing, CrowdFlowData } from "@/lib/types";
 
 // Centered around BIEC Hall 1, Bangalore, within the specified bounding box.
-// Bounding Box:
-// Top-Left: 13.063417, 77.475750
-// Top-Right: 13.063361, 77.476278
-// Bottom-Left: 13.061896, 77.475594
-// Bottom-Right: 13.061861, 77.476122
-
 const VENUE_BOUNDS = {
   north: 13.063417,
   south: 13.061861,
