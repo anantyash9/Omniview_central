@@ -54,41 +54,58 @@ export function ConfigDashboard() {
     return densityZones.find(z => z.id === selectedZoneId) || null;
   }, [densityZones, selectedZoneId]);
 
+  const handleTabChange = (value: string) => {
+    const newTab = value as ActiveTab;
+    setActiveTab(newTab);
+    
+    // Clear context when switching tabs
+    if (newTab === 'cameras') {
+      setSelectedZoneId(null);
+      setDrawingMode(null);
+    } else { // newTab is 'zones'
+      setSelectedCameraId(null);
+      setConfigMode('location');
+      setSelectedCorner(null);
+    }
+  };
+
   const handleCameraChange = (cameraId: string) => {
     setSelectedCameraId(cameraId);
   };
 
   const handleMapClick = (latLng: { lat: number; lng: number }) => {
-    if (!selectedCamera) {
-      toast({ variant: "destructive", title: "Please select a camera first." });
-      return;
-    }
-
-    if (configMode === 'location') {
-      const updatedCameras = cameras.map(c =>
-        c.id === selectedCamera.id ? { ...c, location: latLng } : c
-      );
-      setCameras(updatedCameras);
-      toast({ title: "Camera Location Updated", description: `New location for ${selectedCamera.name} set.` });
-    } else if (configMode === 'fov') {
-      if (!selectedCorner) {
-        toast({ variant: "destructive", title: "Select a corner on the video feed first." });
+    if (activeTab === 'cameras') {
+      if (!selectedCamera) {
+        toast({ variant: "destructive", title: "Please select a camera first." });
         return;
       }
-      const cornerIndex = CORNERS.indexOf(selectedCorner);
-      const newFov = [...(selectedCamera.fov || [])];
-      
-      for(let i=0; i<=cornerIndex; i++) {
-        if(!newFov[i]) newFov[i] = latLng;
+
+      if (configMode === 'location') {
+        const updatedCameras = cameras.map(c =>
+          c.id === selectedCamera.id ? { ...c, location: latLng } : c
+        );
+        setCameras(updatedCameras);
+        toast({ title: "Camera Location Updated", description: `New location for ${selectedCamera.name} set.` });
+      } else if (configMode === 'fov') {
+        if (!selectedCorner) {
+          toast({ variant: "destructive", title: "Select a corner on the video feed first." });
+          return;
+        }
+        const cornerIndex = CORNERS.indexOf(selectedCorner);
+        const newFov = [...(selectedCamera.fov || [])];
+        
+        for(let i=0; i<=cornerIndex; i++) {
+          if(!newFov[i]) newFov[i] = latLng;
+        }
+        newFov[cornerIndex] = latLng;
+        
+        const updatedCameras = cameras.map(c =>
+          c.id === selectedCamera.id ? { ...c, fov: newFov } : c
+        );
+        setCameras(updatedCameras);
+        toast({ title: "FOV Point Set", description: `Updated ${selectedCorner} for ${selectedCamera.name}.`});
+        setSelectedCorner(null);
       }
-      newFov[cornerIndex] = latLng;
-      
-      const updatedCameras = cameras.map(c =>
-        c.id === selectedCamera.id ? { ...c, fov: newFov } : c
-      );
-      setCameras(updatedCameras);
-      toast({ title: "FOV Point Set", description: `Updated ${selectedCorner} for ${selectedCamera.name}.`});
-      setSelectedCorner(null);
     }
   };
 
@@ -137,7 +154,7 @@ export function ConfigDashboard() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 h-full">
       <div className="lg:col-span-1 flex flex-col gap-4">
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ActiveTab)} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="cameras">Camera Config</TabsTrigger>
                 <TabsTrigger value="zones">Density Zones</TabsTrigger>
