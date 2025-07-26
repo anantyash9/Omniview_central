@@ -51,7 +51,7 @@ export function SvgOverlay({ imageUrl, center, width, height, rotation }: SvgOve
         img.style.height = "100%";
         img.style.position = "absolute";
         img.style.objectFit = 'contain';
-        img.style.opacity = '0.75';
+        img.style.opacity = '1';
         
         div.appendChild(img);
         this.div = div;

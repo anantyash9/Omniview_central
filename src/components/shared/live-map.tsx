@@ -249,10 +249,10 @@ export function LiveMap() {
         
         {layerVisibility.floorplan && <SvgOverlay 
           imageUrl="/floorplan.svg"
-          center={{ lat: 13.0627778, lng: 77.4748889 }}
-          rotation={-12}
-          width={150}
-          height={150}
+          center={{ lat: 13.0625964, lng: 77.4758496 }}
+          rotation={90}
+          width={250}
+          height={250}
         />}
       </Map>
     </div>
