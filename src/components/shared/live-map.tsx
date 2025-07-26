@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -11,8 +12,12 @@ import {
 import { useState, useEffect } from 'react';
 import { usePersona } from '@/components/persona/persona-provider';
 import type { Incident, Unit, CrowdDensityPoint, SocialMediaPost } from '@/lib/types';
-import { AlertTriangle, User, Car, MessageCircle, Airplay } from 'lucide-react';
+import { AlertTriangle, User, Car, MessageCircle, Airplay, Layers, Check } from 'lucide-react';
 import { SvgOverlay } from './svg-overlay';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 
 declare const google: any;
 
@@ -95,15 +100,67 @@ const HeatmapLayer = ({
 
 
 export function LiveMap() {
-  const { persona, incidents, units, predictions, crowdDensity, socialMediaPosts } = usePersona();
+  const { incidents, units, crowdDensity, socialMediaPosts } = usePersona();
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedPost, setSelectedPost] = useState<SocialMediaPost | null>(null);
+  const [layerVisibility, setLayerVisibility] = useState({
+    heatmap: true,
+    incidents: true,
+    units: true,
+    social: true,
+    floorplan: true,
+  });
 
   const center = { lat: 13.062647, lng: 77.4747194 };
 
+  type LayerKey = keyof typeof layerVisibility;
+
+  const handleLayerToggle = (layer: LayerKey) => {
+    setLayerVisibility(prev => ({ ...prev, [layer]: !prev[layer] }));
+  };
+
+  const layerOptions: { id: LayerKey; label: string }[] = [
+    { id: 'heatmap', label: 'Crowd Heatmap' },
+    { id: 'incidents', label: 'Incidents' },
+    { id: 'units', label: 'Units' },
+    { id: 'social', label: 'Social Media' },
+    { id: 'floorplan', label: 'Floor Plan' },
+  ];
+
   return (
-    <div className="h-full w-full rounded-lg overflow-hidden shadow-md border">
+    <div className="relative h-full w-full rounded-lg overflow-hidden shadow-md border">
+      <div className="absolute top-2 right-2 z-10">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="secondary" size="icon">
+              <Layers className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <h4 className="font-medium leading-none">Map Layers</h4>
+                <p className="text-sm text-muted-foreground">
+                  Toggle layer visibility.
+                </p>
+              </div>
+              <div className="grid gap-2">
+                {layerOptions.map(option => (
+                  <div key={option.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={option.id}
+                      checked={layerVisibility[option.id]}
+                      onCheckedChange={() => handleLayerToggle(option.id)}
+                    />
+                    <Label htmlFor={option.id} className="font-normal cursor-pointer">{option.label}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
       <Map
         mapId={'omniview_map_main'}
         defaultCenter={center}
@@ -111,12 +168,11 @@ export function LiveMap() {
         gestureHandling={'greedy'}
         disableDefaultUI={true}
       >
-
         {/* Crowd Density Heatmap */}
-        <HeatmapLayer data={crowdDensity} opacity={0.7} />
+        {layerVisibility.heatmap && <HeatmapLayer data={crowdDensity} opacity={0.7} />}
 
         {/* Incidents */}
-        {incidents.map((incident) => (
+        {layerVisibility.incidents && incidents.map((incident) => (
           <AdvancedMarker
             key={incident.id}
             position={incident.location}
@@ -141,7 +197,7 @@ export function LiveMap() {
         )}
 
         {/* Social Media Posts */}
-        {socialMediaPosts.map((post) => (
+        {layerVisibility.social && socialMediaPosts.map((post) => (
             <AdvancedMarker
                 key={post.id}
                 position={post.location}
@@ -167,7 +223,7 @@ export function LiveMap() {
         )}
 
         {/* Units */}
-        {units.map((unit) => (
+        {layerVisibility.units && units.map((unit) => (
           <AdvancedMarker
             key={unit.id}
             position={unit.location}
@@ -190,13 +246,14 @@ export function LiveMap() {
             </div>
           </InfoWindow>
         )}
-                <SvgOverlay 
+        
+        {layerVisibility.floorplan && <SvgOverlay 
           imageUrl="/floorplan.svg"
           center={{ lat: 13.0627778, lng: 77.4748889 }}
-          rotation={0}
+          rotation={-12}
           width={150}
           height={150}
-        />
+        />}
       </Map>
     </div>
   );
