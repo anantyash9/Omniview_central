@@ -126,14 +126,14 @@ export function LiveMap() {
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedPost, setSelectedPost] = useState<SocialMediaPost | null>(null);
 
-  const center = { lat: 13.067, lng: 77.491 };
+  const center = { lat: 13.06265, lng: 77.4764 };
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden shadow-md border">
       <Map
         mapId={'omniview_map_main'}
         defaultCenter={center}
-        defaultZoom={17}
+        defaultZoom={18}
         gestureHandling={'greedy'}
         disableDefaultUI={true}
       >

@@ -1,13 +1,13 @@
 import type { Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, CrowdFlowData } from "@/lib/types";
 
-// Centered around BIEC Hall 1, Bangalore: ~13.067° N, 77.491° E
+// Centered around BIEC Hall 1, Bangalore: ~13.06265° N, 77.4764° E
 
 export const INITIAL_INCIDENTS: Incident[] = [
   {
     id: 'inc-1',
     title: 'Unattended Bag',
     severity: 'Medium',
-    location: { lat: 13.0670, lng: 77.4910 },
+    location: { lat: 13.0624, lng: 77.4761 },
     time: '14:32',
     description: 'An unattended black backpack was reported near the entrance to Hall 1.',
   },
@@ -15,45 +15,47 @@ export const INITIAL_INCIDENTS: Incident[] = [
     id: 'inc-2',
     title: 'Crowd Surge',
     severity: 'High',
-    location: { lat: 13.0678, lng: 77.4915 },
+    location: { lat: 13.0629, lng: 77.4767 },
     time: '14:45',
-    description: 'Sudden crowd movement reported at the food court area near Hall 1. Potential for crushes.',
+    description: 'Sudden crowd movement reported at the food court area. Potential for crushes.',
   },
 ];
 
 export const INITIAL_UNITS: Unit[] = [
-  { id: 'unit-1', type: 'Personnel', status: 'Deployed', location: { lat: 13.0668, lng: 77.4908 } },
-  { id: 'unit-2', type: 'Personnel', status: 'Available', location: { lat: 13.0665, lng: 77.4918 } },
-  { id: 'unit-3', type: 'Vehicle', status: 'On-Site', location: { lat: 13.0660, lng: 77.4900 } },
-  { id: 'drone-1', type: 'Drone', status: 'Deployed', location: { lat: 13.0675, lng: 77.4912 } },
+  { id: 'unit-1', type: 'Personnel', status: 'Deployed', location: { lat: 13.0622, lng: 77.4760 } },
+  { id: 'unit-2', type: 'Personnel', status: 'Available', location: { lat: 13.0620, lng: 77.4768 } },
+  { id: 'unit-3', type: 'Vehicle', status: 'On-Site', location: { lat: 13.0619, lng: 77.4756 } },
+  { id: 'drone-1', type: 'Drone', status: 'Deployed', location: { lat: 13.0628, lng: 77.4764 } },
 ];
 
 export const INITIAL_CAMERAS: Camera[] = [
-  { id: 'cam-1', name: 'Hall 1 Entrance', isAlert: false, location: { lat: 13.0670, lng: 77.4910 }, heading: 90, pitch: 5 },
-  { id: 'cam-2', name: 'Hall 1 Stage Left', isAlert: true, location: { lat: 13.0673, lng: 77.4907 }, heading: 180, pitch: 2 },
-  { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0662, lng: 77.4905 }, heading: 30, pitch: 0 },
-  { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0678, lng: 77.4915 }, heading: 270, pitch: 5 },
-  { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0680, lng: 77.4913 }, heading: 210, pitch: 10 },
-  { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0665, lng: 77.4920 }, heading: 0, pitch: 3 },
+  { id: 'cam-1', name: 'Hall 1 Entrance', isAlert: false, location: { lat: 13.0624, lng: 77.4761 }, heading: 90, pitch: 5 },
+  { id: 'cam-2', name: 'Hall 1 Stage Left', isAlert: true, location: { lat: 13.0626, lng: 77.4759 }, heading: 180, pitch: 2 },
+  { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0619, lng: 77.4758 }, heading: 30, pitch: 0 },
+  { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0629, lng: 77.4767 }, heading: 270, pitch: 5 },
+  { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0632, lng: 77.4765 }, heading: 210, pitch: 10 },
+  { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0620, lng: 77.4770 }, heading: 0, pitch: 3 },
 ];
 
 export const INITIAL_PREDICTIONS: PredictionPolygon[] = [
     {
         id: 'pred-1',
         points: [
-            { lat: 13.0678, lng: 77.4915 },
-            { lat: 13.0681, lng: 77.4913 },
-            { lat: 13.0679, lng: 77.4910 },
-            { lat: 13.0676, lng: 77.4912 },
+          { lat: 13.0630, lng: 77.4764 },
+          { lat: 13.0629, lng: 77.4768 },
+          { lat: 13.0625, lng: 77.4769 },
+          { lat: 13.0622, lng: 77.4766 },
+          { lat: 13.0623, lng: 77.4762 },
+          { lat: 13.0627, lng: 77.4761 },
         ]
     }
 ];
 
 export const INITIAL_CROWD_DENSITY: CrowdDensityPoint[] = [
-    { location: { lat: 13.0670, lng: 77.4910 }, density: 0.6 },
-    { location: { lat: 13.0675, lng: 77.4912 }, density: 0.7 },
-    { location: { lat: 13.0678, lng: 77.4915 }, density: 0.9 },
-    { location: { lat: 13.0668, lng: 77.4908 }, density: 0.4 },
+    { location: { lat: 13.0624, lng: 77.4761 }, density: 0.6 },
+    { location: { lat: 13.0628, lng: 77.4764 }, density: 0.7 },
+    { location: { lat: 13.0629, lng: 77.4767 }, density: 0.9 },
+    { location: { lat: 13.0622, lng: 77.4760 }, density: 0.4 },
 ];
 
 export const INITIAL_CROWD_FLOW: CrowdFlowData[] = [

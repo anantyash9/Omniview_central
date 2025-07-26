@@ -61,10 +61,10 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
 
             // Bounce off the edges of a bounding box around the venue
             const bounds = {
-                north: 13.069,
-                south: 13.065,
-                east: 77.493,
-                west: 77.489
+                north: 13.0634,
+                south: 13.0619,
+                east: 77.4770,
+                west: 77.4756
             };
 
             if (newLat > bounds.north || newLat < bounds.south) {

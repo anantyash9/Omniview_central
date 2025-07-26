@@ -19,7 +19,7 @@ export function CriticalCameraWall() {
     async function fetchPhotos() {
       setIsLoading(true);
       try {
-        const refs = await getPlacePhotoReferences("Hall 1 BIEC Bangalore");
+        const refs = await getPlacePhotoReferences("BIEC Bangalore");
         if (refs.length > 0) {
           setPhotoReferences(refs);
         }
