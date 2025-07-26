@@ -151,54 +151,62 @@ export function ConfigMap({
           width={250}
           height={260}
         />
-
-         {cameras.map((camera) => (
-            <AdvancedMarker
-                key={camera.id}
-                position={camera.location}
-                title={camera.name}
-            >
-                <div className={`p-1 rounded-full shadow ${selectedCamera?.id === camera.id ? 'bg-primary' : 'bg-gray-700'}`}>
-                    <CameraIcon className="h-4 w-4 text-white" />
-                </div>
-            </AdvancedMarker>
-        ))}
         
-        {activeTab === 'cameras' && fovPoints.length > 0 && (
+        {activeTab === 'cameras' && (
             <>
-                <Polygon
-                    paths={fovPoints}
-                    editable={false}
-                    draggable={false}
-                    strokeColor="#FFC107"
-                    strokeOpacity={1}
-                    strokeWeight={3}
-                    fillColor="#FFC107"
-                    fillOpacity={0.3}
-                />
-                {fovPoints.map((point, index) => (
-                     <AdvancedMarker key={`fov-marker-${index}`} position={point}>
-                        <Pin background={'#FFC107'} borderColor={'#B28505'} glyphColor={'#000000'}>
-                            <span className="text-sm font-bold">{index + 1}</span>
-                        </Pin>
+                {cameras.map((camera) => (
+                    <AdvancedMarker
+                        key={camera.id}
+                        position={camera.location}
+                        title={camera.name}
+                    >
+                        <div className={`p-1 rounded-full shadow ${selectedCamera?.id === camera.id ? 'bg-primary' : 'bg-gray-700'}`}>
+                            <CameraIcon className="h-4 w-4 text-white" />
+                        </div>
                     </AdvancedMarker>
                 ))}
-             </>
+                
+                {fovPoints.length > 0 && (
+                    <>
+                        <Polygon
+                            paths={fovPoints}
+                            editable={false}
+                            draggable={false}
+                            strokeColor="#FFC107"
+                            strokeOpacity={1}
+                            strokeWeight={3}
+                            fillColor="#FFC107"
+                            fillOpacity={0.3}
+                        />
+                        {fovPoints.map((point, index) => (
+                            <AdvancedMarker key={`fov-marker-${index}`} position={point}>
+                                <Pin background={'#FFC107'} borderColor={'#B28505'} glyphColor={'#000000'}>
+                                    <span className="text-sm font-bold">{index + 1}</span>
+                                </Pin>
+                            </AdvancedMarker>
+                        ))}
+                    </>
+                )}
+            </>
         )}
         
-        {densityZones.map((zone) => (
-             <Polygon
-                key={zone.id}
-                paths={zone.points}
-                editable={false}
-                draggable={false}
-                strokeColor={selectedZoneId === zone.id ? "#1E88E5" : "#FF5722"}
-                strokeOpacity={1}
-                strokeWeight={selectedZoneId === zone.id ? 4 : 2}
-                fillColor={selectedZoneId === zone.id ? "#42A5F5" : "#FF5722"}
-                fillOpacity={0.4}
-            />
-        ))}
+        {activeTab === 'zones' && (
+            <>
+                {densityZones.map((zone) => (
+                    <Polygon
+                        key={zone.id}
+                        paths={zone.points}
+                        editable={false}
+                        draggable={false}
+                        strokeColor={selectedZoneId === zone.id ? "#1E88E5" : "#FF5722"}
+                        strokeOpacity={1}
+                        strokeWeight={selectedZoneId === zone.id ? 4 : 2}
+                        fillColor={selectedZoneId === zone.id ? "#42A5F5" : "#FF5722"}
+                        fillOpacity={0.4}
+                    />
+                ))}
+            </>
+        )}
       </Map>
     </div>
   );
