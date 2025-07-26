@@ -17,12 +17,13 @@ export function CommanderDashboard() {
     <div className="p-4 space-y-4">
       <BriefingTimeline />
 
-      <AggregateStats />
-
-      <div className="h-[50vh] min-h-[400px] w-full">
-        <ApiProviderWrapper>
-          <LiveMap />
-        </ApiProviderWrapper>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AggregateStats />
+        <div className="h-[50vh] min-h-[400px] w-full">
+            <ApiProviderWrapper>
+                <LiveMap />
+            </ApiProviderWrapper>
+        </div>
       </div>
 
       <SocialMediaIntelligence />

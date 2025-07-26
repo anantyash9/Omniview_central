@@ -112,7 +112,7 @@ export function LiveMap() {
     floorplan: true,
   });
 
-  const center = { lat: 13.062647, lng: 77.4747194 };
+  const center = { lat: 13.06225, lng: 77.475917 };
 
   type LayerKey = keyof typeof layerVisibility;
 
@@ -164,7 +164,7 @@ export function LiveMap() {
       <Map
         mapId={'omniview_map_main'}
         defaultCenter={center}
-        defaultZoom={18}
+        defaultZoom={19}
         gestureHandling={'greedy'}
         disableDefaultUI={true}
       >
@@ -250,7 +250,7 @@ export function LiveMap() {
         {layerVisibility.floorplan && <SvgOverlay 
           imageUrl="/floorplan.svg"
           center={{ lat: 13.0625964, lng: 77.4758496 }}
-          rotation={90}
+          rotation={95}
           width={250}
           height={250}
         />}
