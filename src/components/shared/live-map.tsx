@@ -8,7 +8,6 @@ import {
   InfoWindow,
   useMap,
   useMapsLibrary,
-  PolygonF as Polygon,
   MapMouseEvent,
 } from '@vis.gl/react-google-maps';
 import { useState, useEffect } from 'react';
@@ -97,6 +96,34 @@ const HeatmapLayer = ({
 
 
   return null;
+};
+
+// A wrapper for google.maps.Polygon to use it as a React component
+const Polygon = (props: google.maps.PolygonOptions) => {
+    const map = useMap();
+    const [polygon, setPolygon] = useState<google.maps.Polygon | null>(null);
+
+    useEffect(() => {
+        if (!map) return;
+        if (!polygon) {
+            const newPolygon = new google.maps.Polygon(props);
+            newPolygon.setMap(map);
+            setPolygon(newPolygon);
+        }
+        return () => {
+            if (polygon) {
+                polygon.setMap(null);
+            }
+        };
+    }, [map, polygon, props]);
+
+    useEffect(() => {
+        if (polygon) {
+            polygon.setOptions(props);
+        }
+    }, [polygon, props]);
+
+    return null;
 };
 
 
