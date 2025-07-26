@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { usePersona } from '@/components/persona/persona-provider';
 import type { Incident, Unit, CrowdDensityPoint, SocialMediaPost } from '@/lib/types';
 import { AlertTriangle, User, Car, MessageCircle, Airplay } from 'lucide-react';
+import { SvgOverlay } from './svg-overlay';
 
 declare const google: any;
 
@@ -128,6 +129,13 @@ export function LiveMap() {
 
   const center = { lat: 13.06265, lng: 77.47594 };
 
+  const svgBounds = {
+    north: 13.06342,
+    south: 13.061896,
+    east: 77.47628,
+    west: 77.475594,
+  };
+
   return (
     <div className="h-full w-full rounded-lg overflow-hidden shadow-md border">
       <Map
@@ -137,6 +145,8 @@ export function LiveMap() {
         gestureHandling={'greedy'}
         disableDefaultUI={true}
       >
+        <SvgOverlay bounds={svgBounds} imageUrl="/floorplan.svg" />
+
         {/* Crowd Density Heatmap */}
         <HeatmapLayer data={crowdDensity} opacity={0.7} />
 
