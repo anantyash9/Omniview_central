@@ -4,25 +4,37 @@
 import { useState, useMemo } from 'react';
 import ApiProviderWrapper from '../api-provider-wrapper';
 import { usePersona } from '@/components/persona/persona-provider';
-import type { Camera } from '@/lib/types';
+import type { Camera, DensityZone } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ConfigMap } from '../config/config-map';
 import { cn } from '@/lib/utils';
-import { CornerDownLeft, MapPin } from 'lucide-react';
+import { CornerDownLeft, MapPin, Layers, Trash2, Pencil } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { ScrollArea } from '../ui/scroll-area';
 
 type ConfigMode = 'location' | 'fov';
 type FovCorner = 'topLeft' | 'topRight' | 'bottomRight' | 'bottomLeft';
+type DrawingMode = 'polygon' | null;
 
 const CORNERS: FovCorner[] = ['topLeft', 'topRight', 'bottomRight', 'bottomLeft'];
 
 export function ConfigDashboard() {
-  const { cameras, setCameras } = usePersona();
+  const { cameras, setCameras, densityZones, setDensityZones } = usePersona();
+  const [activeTab, setActiveTab] = useState('cameras');
+  
+  // Camera State
   const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
   const [configMode, setConfigMode] = useState<ConfigMode>('location');
   const [selectedCorner, setSelectedCorner] = useState<FovCorner | null>(null);
+  
+  // Density Zone State
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [drawingMode, setDrawingMode] = useState<DrawingMode>(null);
 
   const { toast } = useToast();
 
@@ -35,6 +47,11 @@ export function ConfigDashboard() {
     if (!selectedCamera?.fov) return [];
     return selectedCamera.fov;
   }, [selectedCamera]);
+  
+  const selectedZone = useMemo(() => {
+    if (!selectedZoneId) return null;
+    return densityZones.find(z => z.id === selectedZoneId) || null;
+  }, [densityZones, selectedZoneId]);
 
   const handleCameraChange = (cameraId: string) => {
     setSelectedCameraId(cameraId);
@@ -60,7 +77,6 @@ export function ConfigDashboard() {
       const cornerIndex = CORNERS.indexOf(selectedCorner);
       const newFov = [...(selectedCamera.fov || [])];
       
-      // Fill array up to the corner index if it's sparse
       for(let i=0; i<=cornerIndex; i++) {
         if(!newFov[i]) newFov[i] = latLng;
       }
@@ -71,7 +87,7 @@ export function ConfigDashboard() {
       );
       setCameras(updatedCameras);
       toast({ title: "FOV Point Set", description: `Updated ${selectedCorner} for ${selectedCamera.name}.`});
-      setSelectedCorner(null); // Reset after setting a point
+      setSelectedCorner(null);
     }
   };
 
@@ -91,52 +107,134 @@ export function ConfigDashboard() {
     }
   }
 
+  const handlePolygonComplete = (path: { lat: number; lng: number }[]) => {
+    const newZone: DensityZone = {
+        id: `zone-${Date.now()}`,
+        name: `New Zone ${densityZones.length + 1}`,
+        points: path,
+        maxDensity: 5,
+    };
+    setDensityZones([...densityZones, newZone]);
+    setDrawingMode(null);
+    setSelectedZoneId(newZone.id);
+    toast({ title: "Zone Created", description: `${newZone.name} has been added.` });
+  };
+  
+  const handleZoneUpdate = (zoneId: string, updates: Partial<DensityZone>) => {
+    const updatedZones = densityZones.map(z => z.id === zoneId ? {...z, ...updates} : z);
+    setDensityZones(updatedZones);
+  }
+
+  const handleDeleteZone = (zoneId: string) => {
+    setDensityZones(densityZones.filter(z => z.id !== zoneId));
+    if (selectedZoneId === zoneId) {
+        setSelectedZoneId(null);
+    }
+    toast({ title: "Zone Deleted" });
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 h-full">
       <div className="lg:col-span-1 flex flex-col gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Camera Configuration</CardTitle>
-            <CardDescription>Select a camera and mode to configure its position and field of view.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Select onValueChange={handleCameraChange} value={selectedCameraId ?? ""}>
-              <SelectTrigger>
-                <SelectValue placeholder={cameras.length > 0 ? "Select a camera..." : "Loading cameras..."} />
-              </SelectTrigger>
-              <SelectContent>
-                {cameras.length > 0 ? cameras.map(camera => (
-                  <SelectItem key={camera.id} value={camera.id}>
-                    {camera.name}
-                  </SelectItem>
-                )) : <SelectItem value="loading" disabled>Loading...</SelectItem>}
-              </SelectContent>
-            </Select>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="cameras">Camera Config</TabsTrigger>
+                <TabsTrigger value="zones">Density Zones</TabsTrigger>
+            </TabsList>
+            <TabsContent value="cameras" className="mt-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Camera Configuration</CardTitle>
+                        <CardDescription>Select a camera and mode to configure its position and field of view.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Select onValueChange={handleCameraChange} value={selectedCameraId ?? ""}>
+                        <SelectTrigger>
+                            <SelectValue placeholder={cameras.length > 0 ? "Select a camera..." : "Loading cameras..."} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {cameras.length > 0 ? cameras.map(camera => (
+                            <SelectItem key={camera.id} value={camera.id}>
+                                {camera.name}
+                            </SelectItem>
+                            )) : <SelectItem value="loading" disabled>Loading...</SelectItem>}
+                        </SelectContent>
+                        </Select>
 
-            {selectedCamera && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                   <Button onClick={() => setConfigMode('location')} variant={configMode === 'location' ? 'default' : 'outline'}><MapPin /> Set Location</Button>
-                   <Button onClick={() => setConfigMode('fov')} variant={configMode === 'fov' ? 'default' : 'outline'}><CornerDownLeft />Set FOV</Button>
-                </div>
-                
-                <div className="text-sm p-2 bg-muted rounded-lg border">
-                  <h4 className="font-semibold mb-1">Instructions:</h4>
-                   {configMode === 'location' && <p>Click anywhere on the map to move the camera.</p>}
-                   {configMode === 'fov' && <p>1. Click a corner on the video feed below.<br/>2. Click the corresponding location on the map.</p>}
-                </div>
-                
-                {configMode === 'fov' && (
-                    <div className="flex justify-end">
-                      <Button onClick={handleClearFov} variant="destructive" size="sm">Clear FOV</Button>
-                    </div>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                        {selectedCamera && (
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-2">
+                            <Button onClick={() => setConfigMode('location')} variant={configMode === 'location' ? 'default' : 'outline'}><MapPin /> Set Location</Button>
+                            <Button onClick={() => setConfigMode('fov')} variant={configMode === 'fov' ? 'default' : 'outline'}><CornerDownLeft />Set FOV</Button>
+                            </div>
+                            
+                            <div className="text-sm p-2 bg-muted rounded-lg border">
+                            <h4 className="font-semibold mb-1">Instructions:</h4>
+                            {configMode === 'location' && <p>Click anywhere on the map to move the camera.</p>}
+                            {configMode === 'fov' && <p>1. Click a corner on the video feed below.<br/>2. Click the corresponding location on the map.</p>}
+                            </div>
+                            
+                            {configMode === 'fov' && (
+                                <div className="flex justify-end">
+                                <Button onClick={handleClearFov} variant="destructive" size="sm">Clear FOV</Button>
+                                </div>
+                            )}
+                        </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </TabsContent>
+            <TabsContent value="zones" className="mt-4">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Density Zone Configuration</CardTitle>
+                        <CardDescription>Draw, select, and manage restricted density zones on the map.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Button onClick={() => setDrawingMode('polygon')} disabled={!!drawingMode}>
+                            <Pencil className="mr-2" />
+                             New Zone
+                        </Button>
+                         {drawingMode && <p className="text-sm text-primary font-semibold">Drawing mode active. Click on the map to start your polygon.</p>}
+                         
+                         <hr/>
+                         <Label>Manage Existing Zones</Label>
+                         <ScrollArea className="h-[200px] border rounded-lg p-2">
+                            {densityZones.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No zones created yet.</p>}
+                            <div className="space-y-2">
+                            {densityZones.map(zone => (
+                                <div key={zone.id} className={cn("flex items-center justify-between p-2 rounded-md", selectedZoneId === zone.id ? "bg-accent" : "bg-muted/40")}>
+                                    <button className="flex-grow text-left" onClick={() => setSelectedZoneId(zone.id)}>
+                                        <p className="font-semibold">{zone.name}</p>
+                                        <p className="text-xs text-muted-foreground">Max Density: {zone.maxDensity} p/m²</p>
+                                    </button>
+                                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDeleteZone(zone.id)}>
+                                        <Trash2 className="h-4 w-4 text-destructive"/>
+                                    </Button>
+                                </div>
+                            ))}
+                            </div>
+                         </ScrollArea>
+                         {selectedZone && (
+                            <div className="space-y-2 pt-2 border-t">
+                                <h4 className="font-semibold">Edit: {selectedZone.name}</h4>
+                                 <div>
+                                    <Label htmlFor="zone-name">Zone Name</Label>
+                                    <Input id="zone-name" value={selectedZone.name} onChange={(e) => handleZoneUpdate(selectedZone.id, {name: e.target.value})}/>
+                                 </div>
+                                 <div>
+                                    <Label htmlFor="zone-density">Max Density (people/m²)</Label>
+                                    <Input id="zone-density" type="number" value={selectedZone.maxDensity} onChange={(e) => handleZoneUpdate(selectedZone.id, {maxDensity: Number(e.target.value)})}/>
+                                 </div>
+                            </div>
+                         )}
 
-        {selectedCamera && (
+                    </CardContent>
+                 </Card>
+            </TabsContent>
+        </Tabs>
+
+        {activeTab === 'cameras' && selectedCamera && (
           <Card className="flex-grow">
             <CardHeader>
               <CardTitle>{selectedCamera.name} Feed</CardTitle>
@@ -189,6 +287,10 @@ export function ConfigDashboard() {
             fovPoints={fovPoints}
             cameras={cameras}
             selectedCamera={selectedCamera}
+            densityZones={densityZones}
+            onPolygonComplete={handlePolygonComplete}
+            drawingMode={drawingMode}
+            selectedZoneId={selectedZoneId}
            />
         </ApiProviderWrapper>
       </div>

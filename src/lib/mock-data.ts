@@ -1,4 +1,4 @@
-import type { Incident, Unit, Camera, CrowdDensityPoint, Briefing, CrowdFlowData } from "@/lib/types";
+import type { Incident, Unit, Camera, CrowdDensityPoint, Briefing, CrowdFlowData, DensityZone } from "@/lib/types";
 
 export const INITIAL_INCIDENTS: Incident[] = [
   {
@@ -38,6 +38,20 @@ export const INITIAL_CAMERAS: Camera[] = [
     { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0632, lng: 77.4759 },  fov: [] },
     { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0633, lng: 77.4761 }, fov: [] },
     { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0621, lng: 77.47625 }, fov: [] },
+];
+
+export const INITIAL_DENSITY_ZONES: DensityZone[] = [
+    {
+        id: 'zone-1',
+        name: 'Main Stage Pit',
+        points: [
+            { lat: 13.0628, lng: 77.4758 },
+            { lat: 13.0629, lng: 77.4761 },
+            { lat: 13.0626, lng: 77.4762 },
+            { lat: 13.0625, lng: 77.4759 },
+        ],
+        maxDensity: 4
+    }
 ];
 
 export const INITIAL_CROWD_DENSITY: CrowdDensityPoint[] = [

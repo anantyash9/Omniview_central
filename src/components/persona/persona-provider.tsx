@@ -3,8 +3,8 @@
 
 import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
-import type { Persona, Incident, Unit, Camera, CrowdDensityPoint, Briefing, SocialMediaPost, CrowdFlowData } from '@/lib/types';
-import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS, INITIAL_CROWD_FLOW, INITIAL_CAMERAS } from '@/lib/mock-data';
+import type { Persona, Incident, Unit, Camera, CrowdDensityPoint, Briefing, SocialMediaPost, CrowdFlowData, DensityZone } from '@/lib/types';
+import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS, INITIAL_CROWD_FLOW, INITIAL_CAMERAS, INITIAL_DENSITY_ZONES } from '@/lib/mock-data';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
 
@@ -15,6 +15,8 @@ interface PersonaContextType {
   units: Unit[];
   cameras: Camera[];
   setCameras: (cameras: Camera[]) => void;
+  densityZones: DensityZone[];
+  setDensityZones: (zones: DensityZone[]) => void;
   crowdDensity: CrowdDensityPoint[];
   briefs: Briefing[];
   socialMediaPosts: SocialMediaPost[];
@@ -28,6 +30,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [cameras, setCameras] = useState<Camera[]>([]);
+  const [densityZones, setDensityZones] = useState<DensityZone[]>([]);
   const [crowdDensity, setCrowdDensity] = useState<CrowdDensityPoint[]>([]);
   const [briefs, setBriefs] = useState<Briefing[]>([]);
   const [socialMediaPosts, setSocialMediaPosts] = useState<SocialMediaPost[]>([]);
@@ -37,7 +40,6 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   const timeRef = useRef(0);
   const dataLoadedRef = useRef(false);
 
-  // Function to update camera state and persist to Firestore
   const handleSetCameras = async (updatedCameras: Camera[]) => {
     setCameras(updatedCameras);
     try {
@@ -49,6 +51,20 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
       await batch.commit();
     } catch (error) {
       console.error("Error saving cameras to Firestore: ", error);
+    }
+  };
+  
+  const handleSetDensityZones = async (updatedZones: DensityZone[]) => {
+    setDensityZones(updatedZones);
+    try {
+        const batch = writeBatch(db);
+        updatedZones.forEach(zone => {
+            const zoneRef = doc(db, 'densityZones', zone.id);
+            batch.set(zoneRef, zone);
+        });
+        await batch.commit();
+    } catch (error) {
+        console.error("Error saving density zones to Firestore: ", error);
     }
   };
 
@@ -65,6 +81,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
           const batch = writeBatch(db);
           
           INITIAL_CAMERAS.forEach(item => batch.set(doc(db, "cameras", item.id), item));
+          INITIAL_DENSITY_ZONES.forEach(item => batch.set(doc(db, "densityZones", item.id), item));
           INITIAL_INCIDENTS.forEach(item => batch.set(doc(db, "incidents", item.id), item));
           INITIAL_UNITS.forEach(item => batch.set(doc(db, "units", item.id), item));
           INITIAL_BRIEFS.forEach((item, index) => batch.set(doc(db, "briefs", `brief-${index}`), item));
@@ -76,6 +93,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
 
           // Set state from initial data after seeding
           setCameras(INITIAL_CAMERAS);
+          setDensityZones(INITIAL_DENSITY_ZONES);
           setIncidents(INITIAL_INCIDENTS);
           setUnits(INITIAL_UNITS);
           setBriefs(INITIAL_BRIEFS);
@@ -86,6 +104,9 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
           console.log("Fetching data from Firestore.");
           const cameraData = cameraSnapshot.docs.map(doc => doc.data() as Camera);
           
+          const densityZoneSnapshot = await getDocs(collection(db, "densityZones"));
+          const densityZoneData = densityZoneSnapshot.docs.map(doc => doc.data() as DensityZone);
+
           const incidentSnapshot = await getDocs(collection(db, "incidents"));
           const incidentData = incidentSnapshot.docs.map(doc => doc.data() as Incident);
           
@@ -102,6 +123,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
           const crowdFlowData = crowdFlowSnapshot.docs.map(doc => doc.data() as CrowdFlowData);
 
           setCameras(cameraData);
+          setDensityZones(densityZoneData);
           setIncidents(incidentData);
           setUnits(unitData);
           setBriefs(briefData.sort((a, b) => a.timestamp.localeCompare(b.timestamp)));
@@ -112,6 +134,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         console.error("Firestore connection failed. Falling back to local mock data.", error);
         // Fallback to mock data if firestore fails
         setCameras(INITIAL_CAMERAS);
+        setDensityZones(INITIAL_DENSITY_ZONES);
         setIncidents(INITIAL_INCIDENTS);
         setUnits(INITIAL_UNITS);
         setBriefs(INITIAL_BRIEFS);
@@ -184,7 +207,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, [crowdDensity, socialMediaPosts.length]);
 
   return (
-    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras: handleSetCameras, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
+    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras: handleSetCameras, densityZones, setDensityZones: handleSetDensityZones, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
       {children}
     </PersonaContext.Provider>
   );

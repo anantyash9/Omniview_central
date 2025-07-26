@@ -29,6 +29,13 @@ export type Camera = {
   fov: { lat: number; lng: number }[];
 };
 
+export type DensityZone = {
+  id: string;
+  name: string;
+  points: { lat: number; lng: number }[];
+  maxDensity: number;
+}
+
 export type PredictionPolygon = {
   id:string;
   points: { lat: number; lng: number }[];
