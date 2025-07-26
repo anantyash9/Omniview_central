@@ -92,33 +92,6 @@ const HeatmapLayer = ({
   return null;
 };
 
-// A custom Polygon component since it's not exported from the library
-const Polygon = (options: google.maps.PolygonOptions) => {
-  const map = useMap();
-  const [polygon, setPolygon] = useState<google.maps.Polygon | null>(null);
-
-  useEffect(() => {
-    if (!map) return;
-    if (!polygon) {
-      setPolygon(new google.maps.Polygon());
-    }
-
-    // remove polygon from map on unmount
-    return () => {
-      if (polygon) {
-        polygon.setMap(null);
-      }
-    };
-  }, [map, polygon]);
-
-  useEffect(() => {
-    if (polygon) {
-      polygon.setOptions({...options, map});
-    }
-  }, [polygon, options, map]);
-
-  return null;
-};
 
 
 export function LiveMap() {
@@ -138,13 +111,6 @@ export function LiveMap() {
         gestureHandling={'greedy'}
         disableDefaultUI={true}
       >
-        <SvgOverlay 
-          imageUrl="/floorplan.svg"
-          center={{ lat: 13.062647, lng: 77.4747194 }}
-          rotation={-12}
-          width={150}
-          height={150}
-        />
 
         {/* Crowd Density Heatmap */}
         <HeatmapLayer data={crowdDensity} opacity={0.7} />
@@ -224,19 +190,13 @@ export function LiveMap() {
             </div>
           </InfoWindow>
         )}
-
-        {/* Commander Predictions */}
-        {persona === 'Commander' && predictions.map((poly) => (
-          <Polygon
-            key={poly.id}
-            paths={poly.points}
-            strokeColor="#FFB300"
-            strokeOpacity={0.8}
-            strokeWeight={2}
-            fillColor="#FFB300"
-            fillOpacity={0.35}
-          />
-        ))}
+                <SvgOverlay 
+          imageUrl="/floorplan.svg"
+          center={{ lat: 13.0627778, lng: 77.4748889 }}
+          rotation={0}
+          width={150}
+          height={150}
+        />
       </Map>
     </div>
   );

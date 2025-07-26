@@ -69,26 +69,24 @@ export function SvgOverlay({ imageUrl, center, width, height, rotation }: SvgOve
         if (!centerPixel) return;
 
         // Calculate the pixel dimensions based on the map's zoom level
-        // Get the coordinates for the top-right and bottom-left corners to determine the pixel size
-        const bounds = new google.maps.LatLngBounds(this.center).extend(this.center);
-        const northEast = bounds.getNorthEast();
-        const southWest = bounds.getSouthWest();
-        
+        const northEast = google.maps.geometry.spherical.computeOffset(this.center, this.height / 2, 0);
+        const southWest = google.maps.geometry.spherical.computeOffset(this.center, this.height / 2, 180);
+        const east = google.maps.geometry.spherical.computeOffset(this.center, this.width / 2, 90);
+
         const northEastPixel = overlayProjection.fromLatLngToDivPixel(northEast);
         const southWestPixel = overlayProjection.fromLatLngToDivPixel(southWest);
+        const eastPixel = overlayProjection.fromLatLngToDivPixel(east);
 
-        if(!northEastPixel || !southWestPixel) return;
+        if(!northEastPixel || !southWestPixel || !eastPixel) return;
 
-        // A simple approximation for meters to pixels at the center of the map
-        const metersPerPixel = (northEast.lat() - southWest.lat()) / (northEastPixel.y - southWestPixel.y);
-        const pixelWidth = this.width / metersPerPixel;
-        const pixelHeight = this.height / metersPerPixel;
+        const pixelHeight = Math.abs(northEastPixel.y - southWestPixel.y);
+        const pixelWidth = Math.abs((eastPixel.x - centerPixel.x) * 2);
         
         const div = this.div;
-        div.style.width = `${Math.abs(pixelWidth)}px`;
-        div.style.height = `${Math.abs(pixelHeight)}px`;
-        div.style.left = `${centerPixel.x - Math.abs(pixelWidth) / 2}px`;
-        div.style.top = `${centerPixel.y - Math.abs(pixelHeight) / 2}px`;
+        div.style.width = `${pixelWidth}px`;
+        div.style.height = `${pixelHeight}px`;
+        div.style.left = `${centerPixel.x - pixelWidth / 2}px`;
+        div.style.top = `${centerPixel.y - pixelHeight / 2}px`;
         div.style.transform = `rotate(${this.rotation}deg)`;
       }
       
@@ -119,12 +117,12 @@ export function SvgOverlay({ imageUrl, center, width, height, rotation }: SvgOve
     }
 
     return () => {
-      if (overlay && !map.getDiv().contains(overlay.div)) {
+      if (overlay && overlay.div && !map.getDiv().contains(overlay.div)) {
           overlay.setMap(null);
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, center, width, height, rotation, imageUrl]);
+  }, [map, center.lat, center.lng, width, height, rotation, imageUrl]);
 
   return null;
 }
