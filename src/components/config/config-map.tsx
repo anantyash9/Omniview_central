@@ -86,7 +86,8 @@ const DrawingManager = ({ onPolygonComplete, drawingMode }: { onPolygonComplete:
                 manager.setMap(null);
             }
         };
-    }, [map, drawingLibrary, manager, onPolygonComplete]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [map, drawingLibrary]);
     
     useEffect(() => {
         if(manager) {
