@@ -19,7 +19,7 @@ export function CriticalCameraWall() {
     async function fetchPhotos() {
       setIsLoading(true);
       try {
-        const refs = await getPlacePhotoReferences("Mahalaxmi Race Course, Mumbai");
+        const refs = await getPlacePhotoReferences("BIEC Bangalore");
         if (refs.length > 0) {
           setPhotoReferences(refs);
         }
@@ -70,7 +70,7 @@ export function CriticalCameraWall() {
                   alt={`View from ${camera.name}`}
                   fill
                   className="object-cover"
-                  data-ai-hint="stadium crowd"
+                  data-ai-hint="exhibition hall crowd"
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
                   <div className="flex justify-between items-center">

@@ -126,7 +126,7 @@ export function LiveMap() {
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedPost, setSelectedPost] = useState<SocialMediaPost | null>(null);
 
-  const center = { lat: 18.9842089, lng: 72.8200753 };
+  const center = { lat: 13.065, lng: 77.493 };
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden shadow-md border">
