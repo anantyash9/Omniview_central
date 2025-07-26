@@ -127,12 +127,7 @@ const Polygon = (props: google.maps.PolygonOptions) => {
 };
 
 
-interface LiveMapProps {
-    isConfigMode?: boolean;
-    onMapClick?: (latLng: { lat: number; lng: number }) => void;
-}
-
-export function LiveMap({ isConfigMode = false, onMapClick }: LiveMapProps) {
+export function LiveMap() {
   const { incidents, units, crowdDensity, socialMediaPosts, cameras } = usePersona();
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
@@ -144,34 +139,24 @@ export function LiveMap({ isConfigMode = false, onMapClick }: LiveMapProps) {
     social: true,
     floorplan: true,
     cameras: true,
-    fov: true,
   });
 
   const center = { lat: 13.062252, lng: 77.475917 };
 
   type LayerKey = keyof typeof layerVisibility;
-  
-  const handleMapClickHandler = (e: MapMouseEvent) => {
-    if (isConfigMode && onMapClick && e.detail.latLng) {
-      onMapClick(e.detail.latLng);
-    }
-  }
 
   const handleLayerToggle = (layer: LayerKey) => {
     setLayerVisibility(prev => ({ ...prev, [layer]: !prev[layer] }));
   };
 
-  const allLayerOptions: { id: LayerKey; label: string }[] = [
+  const layerOptions: { id: LayerKey; label: string }[] = [
     { id: 'heatmap', label: 'Crowd Heatmap' },
     { id: 'incidents', label: 'Incidents' },
     { id: 'units', label: 'Units' },
     { id: 'social', label: 'Social Media' },
     { id: 'floorplan', label: 'Floor Plan' },
     { id: 'cameras', label: 'Cameras' },
-    { id: 'fov', label: 'Field of View' },
   ];
-
-  const layerOptions = isConfigMode ? allLayerOptions : allLayerOptions.filter(l => l.id !== 'fov');
 
   return (
     <div className="relative h-full w-full rounded-lg overflow-hidden shadow-md border">
@@ -212,13 +197,12 @@ export function LiveMap({ isConfigMode = false, onMapClick }: LiveMapProps) {
         defaultZoom={19}
         gestureHandling={'greedy'}
         disableDefaultUI={true}
-        onClick={handleMapClickHandler}
       >
         {/* Crowd Density Heatmap */}
-        {layerVisibility.heatmap && !isConfigMode && <HeatmapLayer data={crowdDensity} opacity={0.7} />}
+        {layerVisibility.heatmap && <HeatmapLayer data={crowdDensity} opacity={0.7} />}
 
         {/* Incidents */}
-        {layerVisibility.incidents && !isConfigMode && incidents.map((incident) => (
+        {layerVisibility.incidents && incidents.map((incident) => (
           <AdvancedMarker
             key={incident.id}
             position={incident.location}
@@ -243,7 +227,7 @@ export function LiveMap({ isConfigMode = false, onMapClick }: LiveMapProps) {
         )}
 
         {/* Social Media Posts */}
-        {layerVisibility.social && !isConfigMode && socialMediaPosts.map((post) => (
+        {layerVisibility.social && socialMediaPosts.map((post) => (
             <AdvancedMarker
                 key={post.id}
                 position={post.location}
@@ -269,7 +253,7 @@ export function LiveMap({ isConfigMode = false, onMapClick }: LiveMapProps) {
         )}
 
         {/* Units */}
-        {layerVisibility.units && !isConfigMode && units.map((unit) => (
+        {layerVisibility.units && units.map((unit) => (
           <AdvancedMarker
             key={unit.id}
             position={unit.location}
@@ -283,7 +267,6 @@ export function LiveMap({ isConfigMode = false, onMapClick }: LiveMapProps) {
         
         {/* All Camera locations */}
          {layerVisibility.cameras && cameras.map((camera) => {
-            const fovPoints = camera.fov || [];
             return (
                 <AdvancedMarker
                     key={camera.id}
@@ -317,25 +300,6 @@ export function LiveMap({ isConfigMode = false, onMapClick }: LiveMapProps) {
           width={250}
           height={260}
         />}
-
-        {/* FOV for all cameras */}
-        {layerVisibility.fov && !isConfigMode && cameras.map((camera) => {
-            const fovPoints = camera.fov || [];
-            if (fovPoints.length === 0) return null;
-            return (
-                <Polygon
-                    key={camera.id}
-                    paths={fovPoints}
-                    editable={false}
-                    draggable={false}
-                    strokeColor="#FFC107"
-                    strokeOpacity={0.7}
-                    strokeWeight={2}
-                    fillColor="#FFC107"
-                    fillOpacity={0.2}
-                />
-            );
-        })}
       </Map>
     </div>
   );
