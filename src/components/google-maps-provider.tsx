@@ -21,7 +21,7 @@ export default function GoogleMapsProvider({ children }: { children: ReactNode }
   }
 
   return (
-    <APIProvider apiKey={apiKey} solutionChannel="GMP_visgl_rgm_react_v1_prom">
+    <APIProvider apiKey={apiKey} solutionChannel="GMP_visgl_rgm_react_v1_prom" libraries={['drawing', 'visualization', 'geometry']}>
       {children}
     </APIProvider>
   );
