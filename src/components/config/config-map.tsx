@@ -6,6 +6,7 @@ import {
   AdvancedMarker,
   useMap,
   MapMouseEvent,
+  Pin,
 } from '@vis.gl/react-google-maps';
 import type { Camera } from '@/lib/types';
 import { SvgOverlay } from '../shared/svg-overlay';
@@ -90,16 +91,25 @@ export function ConfigMap({ onMapClick, fovPoints = [], cameras, selectedCamera 
         ))}
 
         {fovPoints.length > 0 && (
-             <Polygon
-                paths={fovPoints}
-                editable={false}
-                draggable={false}
-                strokeColor="#FFC107"
-                strokeOpacity={1}
-                strokeWeight={3}
-                fillColor="#FFC107"
-                fillOpacity={0.3}
-            />
+            <>
+                <Polygon
+                    paths={fovPoints}
+                    editable={false}
+                    draggable={false}
+                    strokeColor="#FFC107"
+                    strokeOpacity={1}
+                    strokeWeight={3}
+                    fillColor="#FFC107"
+                    fillOpacity={0.3}
+                />
+                {fovPoints.map((point, index) => (
+                     <AdvancedMarker key={`fov-marker-${index}`} position={point}>
+                        <Pin background={'#FFC107'} borderColor={'#B28505'} glyphColor={'#000000'}>
+                            <span className="text-sm font-bold">{index + 1}</span>
+                        </Pin>
+                    </AdvancedMarker>
+                ))}
+             </>
         )}
       </Map>
     </div>
