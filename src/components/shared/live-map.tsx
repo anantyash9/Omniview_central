@@ -8,11 +8,13 @@ import {
   InfoWindow,
   useMap,
   useMapsLibrary,
+  PolygonF as Polygon,
+  MapMouseEvent,
 } from '@vis.gl/react-google-maps';
 import { useState, useEffect } from 'react';
 import { usePersona } from '@/components/persona/persona-provider';
-import type { Incident, Unit, CrowdDensityPoint, SocialMediaPost } from '@/lib/types';
-import { AlertTriangle, User, Car, MessageCircle, Airplay, Layers, Check } from 'lucide-react';
+import type { Incident, Unit, CrowdDensityPoint, SocialMediaPost, Camera } from '@/lib/types';
+import { AlertTriangle, User, Car, MessageCircle, Airplay, Layers, Check, Camera as CameraIcon } from 'lucide-react';
 import { SvgOverlay } from './svg-overlay';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -98,9 +100,15 @@ const HeatmapLayer = ({
 };
 
 
+interface LiveMapProps {
+    isConfigMode?: boolean;
+    onMapClick?: (latLng: { lat: number; lng: number }) => void;
+    configFovPoints?: { lat: number; lng: number }[];
+    selectedCamera?: Camera | null;
+}
 
-export function LiveMap() {
-  const { incidents, units, crowdDensity, socialMediaPosts } = usePersona();
+export function LiveMap({ isConfigMode = false, onMapClick, configFovPoints = [], selectedCamera: selectedConfigCamera }: LiveMapProps) {
+  const { incidents, units, crowdDensity, socialMediaPosts, cameras } = usePersona();
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedPost, setSelectedPost] = useState<SocialMediaPost | null>(null);
@@ -110,11 +118,19 @@ export function LiveMap() {
     units: true,
     social: true,
     floorplan: true,
+    cameras: true,
+    fov: true,
   });
 
-  const center = { lat: 13.06225, lng: 77.475917 };
+  const center = { lat: 13.062252, lng: 77.475917 };
 
   type LayerKey = keyof typeof layerVisibility;
+  
+  const handleMapClickHandler = (e: MapMouseEvent) => {
+    if (isConfigMode && onMapClick && e.detail.latLng) {
+      onMapClick(e.detail.latLng);
+    }
+  }
 
   const handleLayerToggle = (layer: LayerKey) => {
     setLayerVisibility(prev => ({ ...prev, [layer]: !prev[layer] }));
@@ -126,6 +142,8 @@ export function LiveMap() {
     { id: 'units', label: 'Units' },
     { id: 'social', label: 'Social Media' },
     { id: 'floorplan', label: 'Floor Plan' },
+    { id: 'cameras', label: 'Cameras' },
+    { id: 'fov', label: 'Field of View' },
   ];
 
   return (
@@ -167,12 +185,13 @@ export function LiveMap() {
         defaultZoom={19}
         gestureHandling={'greedy'}
         disableDefaultUI={true}
+        onClick={handleMapClickHandler}
       >
         {/* Crowd Density Heatmap */}
-        {layerVisibility.heatmap && <HeatmapLayer data={crowdDensity} opacity={0.7} />}
+        {layerVisibility.heatmap && !isConfigMode && <HeatmapLayer data={crowdDensity} opacity={0.7} />}
 
         {/* Incidents */}
-        {layerVisibility.incidents && incidents.map((incident) => (
+        {layerVisibility.incidents && !isConfigMode && incidents.map((incident) => (
           <AdvancedMarker
             key={incident.id}
             position={incident.location}
@@ -197,7 +216,7 @@ export function LiveMap() {
         )}
 
         {/* Social Media Posts */}
-        {layerVisibility.social && socialMediaPosts.map((post) => (
+        {layerVisibility.social && !isConfigMode && socialMediaPosts.map((post) => (
             <AdvancedMarker
                 key={post.id}
                 position={post.location}
@@ -223,7 +242,7 @@ export function LiveMap() {
         )}
 
         {/* Units */}
-        {layerVisibility.units && units.map((unit) => (
+        {layerVisibility.units && !isConfigMode && units.map((unit) => (
           <AdvancedMarker
             key={unit.id}
             position={unit.location}
@@ -234,6 +253,20 @@ export function LiveMap() {
             </Pin>
           </AdvancedMarker>
         ))}
+        
+        {/* All Camera locations */}
+         {layerVisibility.cameras && cameras.map((camera) => (
+            <AdvancedMarker
+                key={camera.id}
+                position={camera.location}
+                title={camera.name}
+            >
+                <div className={`p-1 rounded-full shadow ${selectedConfigCamera?.id === camera.id ? 'bg-green-500' : 'bg-gray-700'}`}>
+                    <CameraIcon className="h-4 w-4 text-white" />
+                </div>
+            </AdvancedMarker>
+        ))}
+
 
         {selectedUnit && (
            <InfoWindow
@@ -254,6 +287,33 @@ export function LiveMap() {
           width={250}
           height={260}
         />}
+
+        {/* FOV Polygons */}
+        {layerVisibility.fov && !isConfigMode && cameras.map(camera => camera.fov && (
+             <Polygon
+                key={`${camera.id}-fov`}
+                paths={camera.fov}
+                strokeColor="#00FF00"
+                strokeOpacity={0.8}
+                strokeWeight={2}
+                fillColor="#00FF00"
+                fillOpacity={0.2}
+            />
+        ))}
+
+        {/* FOV for config mode */}
+        {isConfigMode && configFovPoints.length > 0 && (
+             <Polygon
+                paths={configFovPoints}
+                editable={false}
+                draggable={false}
+                strokeColor="#FFA500"
+                strokeOpacity={1}
+                strokeWeight={3}
+                fillColor="#FFA500"
+                fillOpacity={0.3}
+            />
+        )}
       </Map>
     </div>
   );

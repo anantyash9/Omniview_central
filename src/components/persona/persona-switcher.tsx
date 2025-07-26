@@ -2,14 +2,14 @@
 
 import { usePersona } from '@/components/persona/persona-provider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Shield, Bot, RadioTower } from 'lucide-react';
+import { User, Shield, Bot, Settings } from 'lucide-react';
 import type { Persona } from '@/lib/types';
 
 const personaConfig = {
   Commander: { icon: Shield, label: 'Commander' },
   'Operations Agent': { icon: Bot, label: 'Operations Agent' },
   'Field Responder': { icon: User, label: 'Field Responder' },
-  'Drone Operator': { icon: RadioTower, label: 'Drone Operator' },
+  'Config': { icon: Settings, label: 'Config' },
 };
 
 export function PersonaSwitcher() {

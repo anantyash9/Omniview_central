@@ -2,8 +2,17 @@ import type { Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Brie
 
 // Centered around BIEC Hall 1, Bangalore, within the specified bounding box.
 // Bounding Box:
-// Lat: 13.06186 to 13.06342
-// Lng: 77.47559 to 77.47628
+// Top-Left: 13.063417, 77.475750
+// Top-Right: 13.063361, 77.476278
+// Bottom-Left: 13.061896, 77.475594
+// Bottom-Right: 13.061861, 77.476122
+
+const VENUE_BOUNDS = {
+  north: 13.063417,
+  south: 13.061861,
+  east: 77.476278,
+  west: 77.475594,
+};
 
 export const INITIAL_INCIDENTS: Incident[] = [
   {
@@ -32,12 +41,12 @@ export const INITIAL_UNITS: Unit[] = [
 ];
 
 export const INITIAL_CAMERAS: Camera[] = [
-  { id: 'cam-1', name: 'Hall 1 Entrance', isAlert: false, location: { lat: 13.0624, lng: 77.4761 }, heading: 90, pitch: 5 },
-  { id: 'cam-2', name: 'Hall 1 Stage Left', isAlert: true, location: { lat: 13.0626, lng: 77.4759 }, heading: 180, pitch: 2 },
-  { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0619, lng: 77.4758 }, heading: 30, pitch: 0 },
-  { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0629, lng: 77.4758 }, heading: 270, pitch: 5 },
-  { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0632, lng: 77.4760 }, heading: 210, pitch: 10 },
-  { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0620, lng: 77.4762 }, heading: 0, pitch: 3 },
+  { id: 'cam1', name: 'Hall 1 west side ', isAlert: false, location: { lat: 13.06265, lng: 77.4758 }, heading: 90, pitch: 5 },
+  { id: 'cam2', name: 'Hall 1 east side', isAlert: true, location: { lat: 13.0626, lng: 77.4762 }, heading: 180, pitch: 2 },
+  { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0620, lng: 77.4757 }, heading: 30, pitch: 0 },
+  { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0632, lng: 77.4759 }, heading: 270, pitch: 5 },
+  { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0633, lng: 77.4761 }, heading: 210, pitch: 10 },
+  { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0621, lng: 77.47625 }, heading: 0, pitch: 3 },
 ];
 
 export const INITIAL_PREDICTIONS: PredictionPolygon[] = [

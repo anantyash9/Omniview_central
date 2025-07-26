@@ -11,6 +11,7 @@ interface PersonaContextType {
   incidents: Incident[];
   units: Unit[];
   cameras: Camera[];
+  setCameras: (cameras: Camera[]) => void;
   predictions: PredictionPolygon[];
   crowdDensity: CrowdDensityPoint[];
   briefs: Briefing[];
@@ -153,7 +154,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, [socialMediaPosts.length]); // Rerun effect logic based on post count
 
   return (
-    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, predictions, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
+    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras, predictions, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
       {children}
     </PersonaContext.Provider>
   );

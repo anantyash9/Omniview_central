@@ -1,4 +1,4 @@
-export type Persona = "Commander" | "Operations Agent" | "Field Responder" | "Drone Operator";
+export type Persona = "Commander" | "Operations Agent" | "Field Responder" | "Config";
 
 export type Incident = {
   id: string;
@@ -28,6 +28,7 @@ export type Camera = {
   location: { lat: number; lng: number };
   heading: number;
   pitch: number;
+  fov?: { lat: number; lng: number }[];
 };
 
 export type PredictionPolygon = {

@@ -3,7 +3,7 @@
 import { usePersona } from '@/components/persona/persona-provider';
 import { CommanderDashboard } from './commander-dashboard';
 import { FieldResponderDashboard } from './field-responder-dashboard';
-import { DroneOperatorDashboard } from './drone-operator-dashboard';
+import { ConfigDashboard } from './config-dashboard';
 import { Card } from '../ui/card';
 import { OperationsAgentGrid } from './operations-agent-grid';
 
@@ -11,7 +11,7 @@ const dashboards = {
   Commander: <CommanderDashboard />,
   'Operations Agent': <OperationsAgentGrid />,
   'Field Responder': <FieldResponderDashboard />,
-  'Drone Operator': <DroneOperatorDashboard />,
+  'Config': <ConfigDashboard />,
 };
 
 export function MainDashboard() {
