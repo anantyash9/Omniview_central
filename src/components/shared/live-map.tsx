@@ -316,7 +316,7 @@ export function LiveMap({ isConfigMode = false, onMapClick, configFovPoints = []
         />}
 
         {/* FOV Polygons */}
-        {layerVisibility.fov && !isConfigMode && cameras.map(camera => camera.fov && (
+        {layerVisibility.fov && !isConfigMode && cameras.map(camera => camera.fov && camera.fov.length > 0 && (
              <Polygon
                 key={`${camera.id}-fov`}
                 paths={camera.fov}

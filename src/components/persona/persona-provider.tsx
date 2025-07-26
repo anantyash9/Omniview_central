@@ -3,8 +3,8 @@
 
 import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
-import type { Persona, Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, SocialMediaPost, CrowdFlowData } from '@/lib/types';
-import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS, INITIAL_CROWD_FLOW, INITIAL_CAMERAS } from '@/lib/mock-data';
+import type { Persona, Incident, Unit, Camera, CrowdDensityPoint, Briefing, SocialMediaPost, CrowdFlowData } from '@/lib/types';
+import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS, INITIAL_CROWD_FLOW, INITIAL_CAMERAS } from '@/lib/mock-data';
 
 interface PersonaContextType {
   persona: Persona;
@@ -13,7 +13,6 @@ interface PersonaContextType {
   units: Unit[];
   cameras: Camera[];
   setCameras: (cameras: Camera[]) => void;
-  predictions: PredictionPolygon[];
   crowdDensity: CrowdDensityPoint[];
   briefs: Briefing[];
   socialMediaPosts: SocialMediaPost[];
@@ -27,7 +26,6 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   const [incidents, setIncidents] = useState<Incident[]>(INITIAL_INCIDENTS);
   const [units, setUnits] = useState<Unit[]>(INITIAL_UNITS);
   const [cameras, setCameras] = useState<Camera[]>(INITIAL_CAMERAS);
-  const [predictions, setPredictions] = useState<PredictionPolygon[]>(INITIAL_PREDICTIONS);
   const [crowdDensity, setCrowdDensity] = useState<CrowdDensityPoint[]>(INITIAL_CROWD_DENSITY);
   const [briefs, setBriefs] = useState<Briefing[]>(INITIAL_BRIEFS);
   const [socialMediaPosts, setSocialMediaPosts] = useState<SocialMediaPost[]>([]);
@@ -109,7 +107,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, [socialMediaPosts.length]);
 
   return (
-    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras: updateCameras, predictions, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
+    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras: updateCameras, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
       {children}
     </PersonaContext.Provider>
   );

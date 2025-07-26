@@ -1,4 +1,4 @@
-import type { Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, CrowdFlowData } from "@/lib/types";
+import type { Incident, Unit, Camera, CrowdDensityPoint, Briefing, CrowdFlowData } from "@/lib/types";
 
 // Centered around BIEC Hall 1, Bangalore, within the specified bounding box.
 // Bounding Box:
@@ -52,21 +52,6 @@ export const INITIAL_CAMERAS: Camera[] = [
   { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0632, lng: 77.4759 }, heading: 270, pitch: 5, fov: [] },
   { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0633, lng: 77.4761 }, heading: 210, pitch: 10, fov: [] },
   { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0621, lng: 77.47625 }, heading: 0, pitch: 3, fov: [] },
-];
-
-
-export const INITIAL_PREDICTIONS: PredictionPolygon[] = [
-    {
-        id: 'pred-1',
-        points: [
-          { lat: 13.0630, lng: 77.4757 },
-          { lat: 13.0629, lng: 77.4761 },
-          { lat: 13.0625, lng: 77.4762 },
-          { lat: 13.0622, lng: 77.4760 },
-          { lat: 13.0623, lng: 77.4756 },
-          { lat: 13.0627, lng: 77.4756 },
-        ]
-    }
 ];
 
 export const INITIAL_CROWD_DENSITY: CrowdDensityPoint[] = [

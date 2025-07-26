@@ -28,7 +28,7 @@ export type Camera = {
   location: { lat: number; lng: number };
   heading: number;
   pitch: number;
-  fov?: { lat: number; lng: number }[];
+  fov: { lat: number; lng: number }[];
 };
 
 export type PredictionPolygon = {
