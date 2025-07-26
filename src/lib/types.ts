@@ -26,8 +26,6 @@ export type Camera = {
   name: string;
   isAlert: boolean;
   location: { lat: number; lng: number };
-  heading: number;
-  pitch: number;
   fov: { lat: number; lng: number }[];
 };
 

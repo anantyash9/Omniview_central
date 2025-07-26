@@ -41,17 +41,17 @@ export const INITIAL_UNITS: Unit[] = [
 ];
 
 export const INITIAL_CAMERAS: Camera[] = [
-  { id: 'cam-1', name: 'Hall 1 West', isAlert: false, location: { lat: 13.06265, lng: 77.4758 }, heading: 90, pitch: 5, fov: [
+  { id: 'cam-1', name: 'Hall 1 West', isAlert: false, location: { lat: 13.06265, lng: 77.4758 }, fov: [
       { lat: 13.0628, lng: 77.4757 }, // Top-Left
       { lat: 13.0629, lng: 77.4760 }, // Top-Right
       { lat: 13.0625, lng: 77.4761 }, // Bottom-Right
       { lat: 13.0624, lng: 77.4758 }, // Bottom-Left
   ] },
-  { id: 'cam-2', name: 'Hall 1 East', isAlert: true, location: { lat: 13.0626, lng: 77.4762 }, heading: 180, pitch: 2, fov: [] },
-  { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0620, lng: 77.4757 }, heading: 30, pitch: 0, fov: [] },
-  { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0632, lng: 77.4759 }, heading: 270, pitch: 5, fov: [] },
-  { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0633, lng: 77.4761 }, heading: 210, pitch: 10, fov: [] },
-  { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0621, lng: 77.47625 }, heading: 0, pitch: 3, fov: [] },
+  { id: 'cam-2', name: 'Hall 1 East', isAlert: true, location: { lat: 13.0626, lng: 77.4762 }, fov: [] },
+  { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0620, lng: 77.4757 }, fov: [] },
+  { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0632, lng: 77.4759 },  fov: [] },
+  { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0633, lng: 77.4761 }, fov: [] },
+  { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0621, lng: 77.47625 }, fov: [] },
 ];
 
 export const INITIAL_CROWD_DENSITY: CrowdDensityPoint[] = [
