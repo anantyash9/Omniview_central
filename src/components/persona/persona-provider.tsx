@@ -38,6 +38,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
 
   const seedFirestore = async () => {
     try {
+      console.log("Seeding Firestore with initial data...");
       const batch = writeBatch(db);
 
       INITIAL_CAMERAS.forEach(camera => {
@@ -76,6 +77,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
 
   const fetchAllData = async () => {
       try {
+          // Check a single collection (e.g., cameras) to see if we need to seed.
           const camerasSnapshot = await getDocs(collection(db, "cameras"));
           if (camerasSnapshot.empty) {
               console.log("No camera configs found in Firestore. Seeding with mock data.");
@@ -87,6 +89,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
               return;
           }
 
+          // If not empty, fetch all data
           const camerasData = camerasSnapshot.docs.map(doc => doc.data() as Camera);
           setCameras(camerasData);
 
@@ -109,7 +112,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
 
       } catch (error) {
           console.error("Error fetching data from Firestore: ", error);
-          // Fallback to mock data if there's an error
+          // Fallback to local mock data if there's a severe error
           setCameras(INITIAL_CAMERAS);
           setIncidents(INITIAL_INCIDENTS);
           setUnits(INITIAL_UNITS);
@@ -199,7 +202,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         const batch = writeBatch(db);
         newCameras.forEach(camera => {
             const docRef = doc(db, 'cameras', camera.id);
-            // Ensure fov is an array before setting
+            // Ensure fov is an array before setting to prevent Firestore errors
             const cameraData = {
                 ...camera,
                 fov: Array.isArray(camera.fov) ? camera.fov : [],
