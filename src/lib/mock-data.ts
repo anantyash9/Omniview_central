@@ -1,13 +1,13 @@
 import type { Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, CrowdFlowData } from "@/lib/types";
 
-// Centered around BIEC, Bangalore: ~13.065° N, 77.493° E
+// Centered around BIEC Hall 1, Bangalore: ~13.067° N, 77.491° E
 
 export const INITIAL_INCIDENTS: Incident[] = [
   {
     id: 'inc-1',
     title: 'Unattended Bag',
     severity: 'Medium',
-    location: { lat: 13.0650, lng: 77.4930 },
+    location: { lat: 13.0670, lng: 77.4910 },
     time: '14:32',
     description: 'An unattended black backpack was reported near the entrance to Hall 1.',
   },
@@ -15,46 +15,45 @@ export const INITIAL_INCIDENTS: Incident[] = [
     id: 'inc-2',
     title: 'Crowd Surge',
     severity: 'High',
-    location: { lat: 13.0665, lng: 77.4940 },
+    location: { lat: 13.0678, lng: 77.4915 },
     time: '14:45',
-    description: 'Sudden crowd movement reported at the food court area. Potential for crushes.',
+    description: 'Sudden crowd movement reported at the food court area near Hall 1. Potential for crushes.',
   },
 ];
 
 export const INITIAL_UNITS: Unit[] = [
-  { id: 'unit-1', type: 'Personnel', status: 'Deployed', location: { lat: 13.0645, lng: 77.4925 } },
-  { id: 'unit-2', type: 'Personnel', status: 'Available', location: { lat: 13.0635, lng: 77.4945 } },
-  { id: 'unit-3', type: 'Vehicle', status: 'On-Site', location: { lat: 13.0629, lng: 77.4919 } },
-  { id: 'drone-1', type: 'Drone', status: 'Deployed', location: { lat: 13.0655, lng: 77.4935 } },
+  { id: 'unit-1', type: 'Personnel', status: 'Deployed', location: { lat: 13.0668, lng: 77.4908 } },
+  { id: 'unit-2', type: 'Personnel', status: 'Available', location: { lat: 13.0665, lng: 77.4918 } },
+  { id: 'unit-3', type: 'Vehicle', status: 'On-Site', location: { lat: 13.0660, lng: 77.4900 } },
+  { id: 'drone-1', type: 'Drone', status: 'Deployed', location: { lat: 13.0675, lng: 77.4912 } },
 ];
 
 export const INITIAL_CAMERAS: Camera[] = [
-  // Adjusted locations to be around BIEC
-  { id: 'cam-1', name: 'Main Entrance Cam', isAlert: false, location: { lat: 13.0650, lng: 77.4930 }, heading: 90, pitch: 5 },
-  { id: 'cam-2', name: 'Hall 4 Entrance', isAlert: true, location: { lat: 13.0660, lng: 77.4922 }, heading: 180, pitch: 2 },
-  { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0632, lng: 77.4915 }, heading: 30, pitch: 0 },
-  { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0665, lng: 77.4940 }, heading: 270, pitch: 5 },
-  { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0670, lng: 77.4933 }, heading: 210, pitch: 10 },
-  { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0640, lng: 77.4950 }, heading: 0, pitch: 3 },
+  { id: 'cam-1', name: 'Hall 1 Entrance', isAlert: false, location: { lat: 13.0670, lng: 77.4910 }, heading: 90, pitch: 5 },
+  { id: 'cam-2', name: 'Hall 1 Stage Left', isAlert: true, location: { lat: 13.0673, lng: 77.4907 }, heading: 180, pitch: 2 },
+  { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0662, lng: 77.4905 }, heading: 30, pitch: 0 },
+  { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0678, lng: 77.4915 }, heading: 270, pitch: 5 },
+  { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0680, lng: 77.4913 }, heading: 210, pitch: 10 },
+  { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0665, lng: 77.4920 }, heading: 0, pitch: 3 },
 ];
 
 export const INITIAL_PREDICTIONS: PredictionPolygon[] = [
     {
         id: 'pred-1',
         points: [
-            { lat: 13.0665, lng: 77.4940 },
-            { lat: 13.0668, lng: 77.4938 },
-            { lat: 13.0666, lng: 77.4935 },
-            { lat: 13.0663, lng: 77.4937 },
+            { lat: 13.0678, lng: 77.4915 },
+            { lat: 13.0681, lng: 77.4913 },
+            { lat: 13.0679, lng: 77.4910 },
+            { lat: 13.0676, lng: 77.4912 },
         ]
     }
 ];
 
 export const INITIAL_CROWD_DENSITY: CrowdDensityPoint[] = [
-    { location: { lat: 13.0650, lng: 77.4930 }, density: 0.6 },
-    { location: { lat: 13.0655, lng: 77.4935 }, density: 0.7 },
-    { location: { lat: 13.0665, lng: 77.4940 }, density: 0.9 },
-    { location: { lat: 13.0642, lng: 77.4928 }, density: 0.4 },
+    { location: { lat: 13.0670, lng: 77.4910 }, density: 0.6 },
+    { location: { lat: 13.0675, lng: 77.4912 }, density: 0.7 },
+    { location: { lat: 13.0678, lng: 77.4915 }, density: 0.9 },
+    { location: { lat: 13.0668, lng: 77.4908 }, density: 0.4 },
 ];
 
 export const INITIAL_CROWD_FLOW: CrowdFlowData[] = [
@@ -115,7 +114,7 @@ export const INITIAL_BRIEFS: Briefing[] = [
 ];
 
 export const MOCK_SOCIAL_POSTS: string[] = [
-    "The lines to get in are insane! Been waiting 45 minutes. #BIEC #Bengaluru",
+    "The lines to get into Hall 1 are insane! Been waiting 45 minutes. #BIEC #Bengaluru",
     "Incredible atmosphere here at #BIEC! The energy is electric!",
     "Can't find any water fountains and the bottles are so expensive. Pretty frustrating. #BIEC",
     "Security team was super helpful when I got lost. Big thanks! #BIEC #Bengaluru",
@@ -124,7 +123,7 @@ export const MOCK_SOCIAL_POSTS: string[] = [
     "Just saw the drone fly over, so cool! #BIEC #Tech",
     "Parking was a nightmare. Took an hour just to get into the lot. #BIEC #Bengaluru",
     "Food is surprisingly good and not too overpriced. Well done #BIEC.",
-    "The exhibition is absolutely breathtaking! #BIEC #Amazing",
+    "The exhibition in Hall 1 is absolutely breathtaking! #BIEC #Amazing",
     "Restrooms near Hall 3 are a total mess. Needs attention. #BIEC",
     "Love the event, but it's way too crowded up front. Hard to breathe. #BIEC",
 ];
