@@ -5,8 +5,6 @@ import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { Persona, Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, SocialMediaPost, CrowdFlowData } from '@/lib/types';
 import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS, INITIAL_CROWD_FLOW, INITIAL_CAMERAS } from '@/lib/mock-data';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, writeBatch } from "firebase/firestore"; 
 
 interface PersonaContextType {
   persona: Persona;
@@ -28,7 +26,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   const [persona, setPersona] = useState<Persona>('Commander');
   const [incidents, setIncidents] = useState<Incident[]>(INITIAL_INCIDENTS);
   const [units, setUnits] = useState<Unit[]>(INITIAL_UNITS);
-  const [cameras, setCameras] = useState<Camera[]>([]);
+  const [cameras, setCameras] = useState<Camera[]>(INITIAL_CAMERAS);
   const [predictions, setPredictions] = useState<PredictionPolygon[]>(INITIAL_PREDICTIONS);
   const [crowdDensity, setCrowdDensity] = useState<CrowdDensityPoint[]>(INITIAL_CROWD_DENSITY);
   const [briefs, setBriefs] = useState<Briefing[]>(INITIAL_BRIEFS);
@@ -36,72 +34,10 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   const [crowdFlow, setCrowdFlow] = useState<CrowdFlowData[]>(INITIAL_CROWD_FLOW);
   const droneVelocityRef = useRef({ vLat: (Math.random() - 0.5) * 0.00004, vLng: (Math.random() - 0.5) * 0.00004 });
   const timeRef = useRef(0);
-  const dataLoaded = useRef(false);
 
-  // Function to update cameras in both state and Firestore
-  const updateCameras = async (newCameras: Camera[]) => {
-    // Find the difference between new and old cameras to only update changed ones
-    const oldCameras = cameras;
-    const changedCameras = newCameras.filter((newCam) => {
-        const oldCam = oldCameras.find(c => c.id === newCam.id);
-        return !oldCam || JSON.stringify(newCam) !== JSON.stringify(oldCam);
-    });
-    
-    // Update state immediately for responsiveness
+  const updateCameras = (newCameras: Camera[]) => {
     setCameras(newCameras);
-    
-    if (changedCameras.length > 0) {
-      try {
-        const batch = writeBatch(db);
-        changedCameras.forEach(camera => {
-            const camRef = doc(db, "cameras", camera.id);
-            // Ensure fov is an array, not undefined
-            const cameraData = { ...camera, fov: camera.fov || [] };
-            batch.set(camRef, cameraData, { merge: true });
-        });
-        await batch.commit();
-      } catch(e) {
-        console.error("Failed to save camera updates to Firestore:", e);
-      }
-    }
   };
-
-  // Effect for fetching initial camera data from Firestore
-  useEffect(() => {
-    const fetchAndSetCameras = async () => {
-        if (dataLoaded.current) return;
-        dataLoaded.current = true;
-
-        const cameraCollection = collection(db, "cameras");
-        try {
-            const querySnapshot = await getDocs(cameraCollection);
-            if (querySnapshot.empty) {
-                console.log("No camera configs found in Firestore. Seeding with mock data.");
-                const batch = writeBatch(db);
-                INITIAL_CAMERAS.forEach((camera) => {
-                    const docRef = doc(db, "cameras", camera.id);
-                    // Ensure the fov field is present, even if empty.
-                    const cameraData = { ...camera, fov: camera.fov || [] };
-                    batch.set(docRef, cameraData);
-                });
-                await batch.commit();
-                setCameras(INITIAL_CAMERAS);
-            } else {
-                const camerasFromFirestore = querySnapshot.docs
-                  .map(doc => doc.data() as Camera)
-                  .sort((a,b) => a.name.localeCompare(b.name)); // Sort for consistency
-                setCameras(camerasFromFirestore);
-            }
-        } catch (error) {
-            console.error("Error fetching camera configuration:", error);
-            // Fallback to mock data if Firestore fails
-            setCameras(INITIAL_CAMERAS);
-        }
-    };
-    
-    fetchAndSetCameras();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Effect for live data simulation
   useEffect(() => {
