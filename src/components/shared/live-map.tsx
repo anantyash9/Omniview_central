@@ -252,7 +252,7 @@ export function LiveMap() {
           center={{ lat: 13.0625964, lng: 77.4758496 }}
           rotation={95}
           width={250}
-          height={250}
+          height={260}
         />}
       </Map>
     </div>
