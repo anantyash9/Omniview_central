@@ -9,7 +9,7 @@ export const INITIAL_INCIDENTS: Incident[] = [
     severity: 'Medium',
     location: { lat: 13.0650, lng: 77.4930 },
     time: '14:32',
-    description: 'An unattended black backpack was reported near the main entrance (Hall 1).',
+    description: 'An unattended black backpack was reported near the entrance to Hall 1.',
   },
   {
     id: 'inc-2',
