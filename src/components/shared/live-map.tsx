@@ -163,7 +163,7 @@ export function LiveMap({ isConfigMode = false, onMapClick, configFovPoints = []
     setLayerVisibility(prev => ({ ...prev, [layer]: !prev[layer] }));
   };
 
-  const layerOptions: { id: LayerKey; label: string }[] = [
+  const allLayerOptions: { id: LayerKey; label: string }[] = [
     { id: 'heatmap', label: 'Crowd Heatmap' },
     { id: 'incidents', label: 'Incidents' },
     { id: 'units', label: 'Units' },
@@ -172,6 +172,8 @@ export function LiveMap({ isConfigMode = false, onMapClick, configFovPoints = []
     { id: 'cameras', label: 'Cameras' },
     { id: 'fov', label: 'Field of View' },
   ];
+
+  const layerOptions = isConfigMode ? allLayerOptions : allLayerOptions.filter(l => l.id !== 'fov');
 
   return (
     <div className="relative h-full w-full rounded-lg overflow-hidden shadow-md border">
@@ -314,19 +316,6 @@ export function LiveMap({ isConfigMode = false, onMapClick, configFovPoints = []
           width={250}
           height={260}
         />}
-
-        {/* FOV Polygons */}
-        {layerVisibility.fov && !isConfigMode && cameras.map(camera => camera.fov && camera.fov.length > 0 && (
-             <Polygon
-                key={`${camera.id}-fov`}
-                paths={camera.fov}
-                strokeColor="#00FF00"
-                strokeOpacity={0.8}
-                strokeWeight={2}
-                fillColor="#00FF00"
-                fillOpacity={0.2}
-            />
-        ))}
 
         {/* FOV for config mode */}
         {isConfigMode && configFovPoints.length > 0 && (
