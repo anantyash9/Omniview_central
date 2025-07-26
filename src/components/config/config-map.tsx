@@ -5,7 +5,6 @@ import {
   Map,
   AdvancedMarker,
   useMap,
-  useMapsLibrary,
   MapMouseEvent,
 } from '@vis.gl/react-google-maps';
 import type { Camera } from '@/lib/types';
@@ -22,7 +21,7 @@ const Polygon = (props: google.maps.PolygonOptions) => {
     useEffect(() => {
         if (!map) return;
         if (!polygon) {
-            const newPolygon = new google.maps.Polygon(props);
+            const newPolygon = new google.maps.Polygon();
             newPolygon.setMap(map);
             setPolygon(newPolygon);
         }
@@ -31,7 +30,7 @@ const Polygon = (props: google.maps.PolygonOptions) => {
                 polygon.setMap(null);
             }
         };
-    }, [map, polygon, props]);
+    }, [map, polygon]);
 
     useEffect(() => {
         if (polygon) {

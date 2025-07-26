@@ -130,11 +130,9 @@ const Polygon = (props: google.maps.PolygonOptions) => {
 interface LiveMapProps {
     isConfigMode?: boolean;
     onMapClick?: (latLng: { lat: number; lng: number }) => void;
-    configFovPoints?: { lat: number; lng: number }[];
-    selectedCamera?: Camera | null;
 }
 
-export function LiveMap({ isConfigMode = false, onMapClick, configFovPoints = [], selectedCamera: selectedConfigCamera }: LiveMapProps) {
+export function LiveMap({ isConfigMode = false, onMapClick }: LiveMapProps) {
   const { incidents, units, crowdDensity, socialMediaPosts, cameras } = usePersona();
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
@@ -284,17 +282,20 @@ export function LiveMap({ isConfigMode = false, onMapClick, configFovPoints = []
         ))}
         
         {/* All Camera locations */}
-         {layerVisibility.cameras && cameras.map((camera) => (
-            <AdvancedMarker
-                key={camera.id}
-                position={camera.location}
-                title={camera.name}
-            >
-                <div className={`p-1 rounded-full shadow ${selectedConfigCamera?.id === camera.id ? 'bg-green-500' : 'bg-gray-700'}`}>
-                    <CameraIcon className="h-4 w-4 text-white" />
-                </div>
-            </AdvancedMarker>
-        ))}
+         {layerVisibility.cameras && cameras.map((camera) => {
+            const fovPoints = camera.fov || [];
+            return (
+                <AdvancedMarker
+                    key={camera.id}
+                    position={camera.location}
+                    title={camera.name}
+                >
+                    <div className={'p-1 rounded-full shadow bg-gray-700'}>
+                        <CameraIcon className="h-4 w-4 text-white" />
+                    </div>
+                </AdvancedMarker>
+            );
+        })}
 
 
         {selectedUnit && (
@@ -317,19 +318,24 @@ export function LiveMap({ isConfigMode = false, onMapClick, configFovPoints = []
           height={260}
         />}
 
-        {/* FOV for config mode */}
-        {isConfigMode && configFovPoints.length > 0 && (
-             <Polygon
-                paths={configFovPoints}
-                editable={false}
-                draggable={false}
-                strokeColor="#FFA500"
-                strokeOpacity={1}
-                strokeWeight={3}
-                fillColor="#FFA500"
-                fillOpacity={0.3}
-            />
-        )}
+        {/* FOV for all cameras */}
+        {layerVisibility.fov && !isConfigMode && cameras.map((camera) => {
+            const fovPoints = camera.fov || [];
+            if (fovPoints.length === 0) return null;
+            return (
+                <Polygon
+                    key={camera.id}
+                    paths={fovPoints}
+                    editable={false}
+                    draggable={false}
+                    strokeColor="#FFC107"
+                    strokeOpacity={0.7}
+                    strokeWeight={2}
+                    fillColor="#FFC107"
+                    fillOpacity={0.2}
+                />
+            );
+        })}
       </Map>
     </div>
   );
