@@ -106,4 +106,3 @@ export function ConfigMap({ onMapClick, fovPoints = [], cameras, selectedCamera 
     </div>
   );
 }
-
