@@ -17,35 +17,24 @@ import { useEffect, useState, useCallback } from 'react';
 declare const google: any;
 
 // A wrapper for google.maps.Polygon to use it as a React component
-const Polygon = ({ onPolygonComplete, ...props }: google.maps.PolygonOptions & { onPolygonComplete?: (path: google.maps.LatLng[]) => void }) => {
+const Polygon = (props: google.maps.PolygonOptions) => {
     const map = useMap();
     const [polygon, setPolygon] = useState<google.maps.Polygon | null>(null);
 
     useEffect(() => {
         if (!map) return;
         if (!polygon) {
-            const newPolygon = new google.maps.Polygon();
+            const newPolygon = new google.maps.Polygon(props);
             newPolygon.setMap(map);
             setPolygon(newPolygon);
-
-            if (props.editable && onPolygonComplete) {
-                // Listen for path changes to signal completion
-                google.maps.event.addListener(newPolygon.getPath(), 'set_at', () => {
-                   onPolygonComplete(newPolygon.getPath().getArray());
-                });
-                 google.maps.event.addListener(newPolygon.getPath(), 'insert_at', () => {
-                   onPolygonComplete(newPolygon.getPath().getArray());
-                });
-            }
         }
         return () => {
             if (polygon) {
-                google.maps.event.clearInstanceListeners(polygon);
                 polygon.setMap(null);
             }
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [map, polygon]);
+    }, [map]);
 
     useEffect(() => {
         if (polygon) {
@@ -55,6 +44,7 @@ const Polygon = ({ onPolygonComplete, ...props }: google.maps.PolygonOptions & {
 
     return null;
 };
+
 
 // DrawingManager Component
 const DrawingManager = ({ onPolygonComplete, drawingMode }: { onPolygonComplete: (path: {lat: number, lng: number}[]) => void, drawingMode: 'polygon' | null }) => {
@@ -117,6 +107,7 @@ interface ConfigMapProps {
     onPolygonComplete: (path: { lat: number; lng: number }[]) => void;
     drawingMode: 'polygon' | null;
     selectedZoneId?: string | null;
+    activeTab: 'cameras' | 'zones';
 }
 
 export function ConfigMap({ 
@@ -128,6 +119,7 @@ export function ConfigMap({
     onPolygonComplete,
     drawingMode,
     selectedZoneId,
+    activeTab,
 }: ConfigMapProps) {
   const center = { lat: 13.062252, lng: 77.475917 };
 
@@ -170,8 +162,8 @@ export function ConfigMap({
                 </div>
             </AdvancedMarker>
         ))}
-
-        {fovPoints.length > 0 && (
+        
+        {activeTab === 'cameras' && fovPoints.length > 0 && (
             <>
                 <Polygon
                     paths={fovPoints}

@@ -20,12 +20,13 @@ import { ScrollArea } from '../ui/scroll-area';
 type ConfigMode = 'location' | 'fov';
 type FovCorner = 'topLeft' | 'topRight' | 'bottomRight' | 'bottomLeft';
 type DrawingMode = 'polygon' | null;
+type ActiveTab = 'cameras' | 'zones';
 
 const CORNERS: FovCorner[] = ['topLeft', 'topRight', 'bottomRight', 'bottomLeft'];
 
 export function ConfigDashboard() {
   const { cameras, setCameras, densityZones, setDensityZones } = usePersona();
-  const [activeTab, setActiveTab] = useState('cameras');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('cameras');
   
   // Camera State
   const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
@@ -136,7 +137,7 @@ export function ConfigDashboard() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 h-full">
       <div className="lg:col-span-1 flex flex-col gap-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ActiveTab)} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="cameras">Camera Config</TabsTrigger>
                 <TabsTrigger value="zones">Density Zones</TabsTrigger>
@@ -291,6 +292,7 @@ export function ConfigDashboard() {
             onPolygonComplete={handlePolygonComplete}
             drawingMode={drawingMode}
             selectedZoneId={selectedZoneId}
+            activeTab={activeTab}
            />
         </ApiProviderWrapper>
       </div>
