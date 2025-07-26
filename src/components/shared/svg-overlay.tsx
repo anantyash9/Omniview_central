@@ -1,6 +1,6 @@
 'use client';
 
-import { useMap } from '@vis.gl/react-google-maps';
+import { useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { useEffect, useState } from 'react';
 
 declare const google: any;
@@ -16,9 +16,10 @@ interface SvgOverlayProps {
 export function SvgOverlay({ imageUrl, center, width, height, rotation }: SvgOverlayProps) {
   const map = useMap();
   const [overlay, setOverlay] = useState<any>(null);
+  const geometryLibrary = useMapsLibrary('geometry');
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || !geometryLibrary) return;
 
     class CustomGroundOverlay extends google.maps.OverlayView {
       private imageUrl: string;
@@ -60,7 +61,7 @@ export function SvgOverlay({ imageUrl, center, width, height, rotation }: SvgOve
       }
       
       draw() {
-        if (!this.div) return;
+        if (!this.div || !geometryLibrary) return;
         
         const overlayProjection = this.getProjection();
         
@@ -69,9 +70,9 @@ export function SvgOverlay({ imageUrl, center, width, height, rotation }: SvgOve
         if (!centerPixel) return;
 
         // Calculate the pixel dimensions based on the map's zoom level
-        const northEast = google.maps.geometry.spherical.computeOffset(this.center, this.height / 2, 0);
-        const southWest = google.maps.geometry.spherical.computeOffset(this.center, this.height / 2, 180);
-        const east = google.maps.geometry.spherical.computeOffset(this.center, this.width / 2, 90);
+        const northEast = geometryLibrary.spherical.computeOffset(this.center, this.height / 2, 0);
+        const southWest = geometryLibrary.spherical.computeOffset(this.center, this.height / 2, 180);
+        const east = geometryLibrary.spherical.computeOffset(this.center, this.width / 2, 90);
 
         const northEastPixel = overlayProjection.fromLatLngToDivPixel(northEast);
         const southWestPixel = overlayProjection.fromLatLngToDivPixel(southWest);
@@ -117,12 +118,16 @@ export function SvgOverlay({ imageUrl, center, width, height, rotation }: SvgOve
     }
 
     return () => {
-      if (overlay && overlay.div && !map.getDiv().contains(overlay.div)) {
-          overlay.setMap(null);
-      }
+        if (overlay) {
+            // Check if the div exists and is a child of the map before trying to remove
+            const mapDiv = map.getDiv();
+            if (overlay.div && mapDiv.contains(overlay.div)) {
+                 overlay.setMap(null);
+            }
+        }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, center.lat, center.lng, width, height, rotation, imageUrl]);
+  }, [map, geometryLibrary, center.lat, center.lng, width, height, rotation, imageUrl]);
 
   return null;
 }
