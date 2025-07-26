@@ -27,17 +27,17 @@ export const INITIAL_UNITS: Unit[] = [
 ];
 
 export const INITIAL_CAMERAS: Camera[] = [
-  { id: 'cam-1', name: 'Hall 1 West', isAlert: false, location: { lat: 13.06265, lng: 77.4758 }, fov: [
-      { lat: 13.0628, lng: 77.4757 },
-      { lat: 13.0629, lng: 77.4760 },
-      { lat: 13.0625, lng: 77.4761 },
-      { lat: 13.0624, lng: 77.4758 },
-  ] },
-  { id: 'cam-2', name: 'Hall 1 East', isAlert: true, location: { lat: 13.0626, lng: 77.4762 }, fov: [] },
-  { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0620, lng: 77.4757 }, fov: [] },
-  { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0632, lng: 77.4759 },  fov: [] },
-  { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0633, lng: 77.4761 }, fov: [] },
-  { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0621, lng: 77.47625 }, fov: [] },
+    { id: 'cam-1', name: 'Hall 1 West', isAlert: false, location: { lat: 13.06265, lng: 77.4758 }, fov: [
+        { lat: 13.0628, lng: 77.4757 },
+        { lat: 13.0629, lng: 77.4760 },
+        { lat: 13.0625, lng: 77.4761 },
+        { lat: 13.0624, lng: 77.4758 },
+    ] },
+    { id: 'cam-2', name: 'Hall 1 East', isAlert: true, location: { lat: 13.0626, lng: 77.4762 }, fov: [] },
+    { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0620, lng: 77.4757 }, fov: [] },
+    { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0632, lng: 77.4759 },  fov: [] },
+    { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0633, lng: 77.4761 }, fov: [] },
+    { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0621, lng: 77.47625 }, fov: [] },
 ];
 
 export const INITIAL_CROWD_DENSITY: CrowdDensityPoint[] = [

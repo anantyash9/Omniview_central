@@ -181,7 +181,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, [crowdDensity, socialMediaPosts.length]);
 
   return (
     <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras: handleSetCameras, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
