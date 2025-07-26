@@ -1,13 +1,5 @@
 import type { Incident, Unit, Camera, CrowdDensityPoint, Briefing, CrowdFlowData } from "@/lib/types";
 
-// Centered around BIEC Hall 1, Bangalore, within the specified bounding box.
-const VENUE_BOUNDS = {
-  north: 13.063417,
-  south: 13.061861,
-  east: 77.476278,
-  west: 77.475594,
-};
-
 export const INITIAL_INCIDENTS: Incident[] = [
   {
     id: 'inc-1',
@@ -36,10 +28,10 @@ export const INITIAL_UNITS: Unit[] = [
 
 export const INITIAL_CAMERAS: Camera[] = [
   { id: 'cam-1', name: 'Hall 1 West', isAlert: false, location: { lat: 13.06265, lng: 77.4758 }, fov: [
-      { lat: 13.0628, lng: 77.4757 }, // Top-Left
-      { lat: 13.0629, lng: 77.4760 }, // Top-Right
-      { lat: 13.0625, lng: 77.4761 }, // Bottom-Right
-      { lat: 13.0624, lng: 77.4758 }, // Bottom-Left
+      { lat: 13.0628, lng: 77.4757 },
+      { lat: 13.0629, lng: 77.4760 },
+      { lat: 13.0625, lng: 77.4761 },
+      { lat: 13.0624, lng: 77.4758 },
   ] },
   { id: 'cam-2', name: 'Hall 1 East', isAlert: true, location: { lat: 13.0626, lng: 77.4762 }, fov: [] },
   { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0620, lng: 77.4757 }, fov: [] },
@@ -68,48 +60,17 @@ export const INITIAL_CROWD_FLOW: CrowdFlowData[] = [
   { time: "14:45", "North Gate": 220, "Main Entrance": 240, "South Gate": 125 },
 ];
 
-
 export const INITIAL_BRIEFS: Briefing[] = [
-    {
-        timestamp: "14:00",
-        brief: "All systems operational. Crowd density is low and stable across all sectors. No active incidents to report. On-ground teams are at their posts."
-    },
-    {
-        timestamp: "14:05",
-        brief: "Monitoring a slight increase in crowd density near the food court. All other sectors remain stable. Units are holding their positions."
-    },
-    {
-        timestamp: "14:10",
-        brief: "Crowd density at the food court has stabilized. System status remains green. No unusual activity detected on camera feeds. Weather is clear."
-    },
-    {
-        timestamp: "14:15",
-        brief: "A small, contained argument was resolved by on-site personnel near Hall 2. No further action needed. All other areas are calm."
-    },
-    {
-        timestamp: "14:20",
-        brief: "Drone-1 is conducting a routine aerial sweep. Live feed shows normal crowd distribution. All units report normal status. No new alerts."
-    },
-    {
-        timestamp: "14:25",
-        brief: "Slight congestion reported at the main entrance turnstiles. Unit-2 is monitoring. No immediate security concern. Other operations are nominal."
-    },
-    {
-        timestamp: "14:30",
-        brief: "An unattended bag has been reported near Hall 1. Unit-1 is deployed to investigate. Severity is currently assessed as Medium."
-    },
-    {
-        timestamp: "14:35",
-        brief: "Unit-1 has secured the unattended bag. The area is cordoned off. The situation is under control. No immediate threat detected. Crowd rerouted."
-    },
-    {
-        timestamp: "14:40",
-        brief: "The unattended bag incident is resolved. It contained personal belongings. The cordon has been lifted. Normal operations are resuming in the area."
-    },
-    {
-        timestamp: "14:45",
-        brief: "A crowd surge is reported at the food court. Potential for crushes. Severity is High. All available units are being directed to the location."
-    }
+    { timestamp: "14:00", brief: "All systems operational. Crowd density is low and stable across all sectors. No active incidents to report. On-ground teams are at their posts." },
+    { timestamp: "14:05", brief: "Monitoring a slight increase in crowd density near the food court. All other sectors remain stable. Units are holding their positions." },
+    { timestamp: "14:10", brief: "Crowd density at the food court has stabilized. System status remains green. No unusual activity detected on camera feeds. Weather is clear." },
+    { timestamp: "14:15", brief: "A small, contained argument was resolved by on-site personnel near Hall 2. No further action needed. All other areas are calm." },
+    { timestamp: "14:20", brief: "Drone-1 is conducting a routine aerial sweep. Live feed shows normal crowd distribution. All units report normal status. No new alerts." },
+    { timestamp: "14:25", brief: "Slight congestion reported at the main entrance turnstiles. Unit-2 is monitoring. No immediate security concern. Other operations are nominal." },
+    { timestamp: "14:30", brief: "An unattended bag has been reported near Hall 1. Unit-1 is deployed to investigate. Severity is currently assessed as Medium." },
+    { timestamp: "14:35", brief: "Unit-1 has secured the unattended bag. The area is cordoned off. The situation is under control. No immediate threat detected. Crowd rerouted." },
+    { timestamp: "14:40", brief: "The unattended bag incident is resolved. It contained personal belongings. The cordon has been lifted. Normal operations are resuming in the area." },
+    { timestamp: "14:45", brief: "A crowd surge is reported at the food court. Potential for crushes. Severity is High. All available units are being directed to the location." }
 ];
 
 export const MOCK_SOCIAL_POSTS: string[] = [
