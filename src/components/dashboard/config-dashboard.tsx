@@ -20,11 +20,16 @@ const CORNERS: FovCorner[] = ['topLeft', 'topRight', 'bottomRight', 'bottomLeft'
 
 export function ConfigDashboard() {
   const { cameras, setCameras } = usePersona();
-  const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
+  const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
   const [configMode, setConfigMode] = useState<ConfigMode>('location');
   const [selectedCorner, setSelectedCorner] = useState<FovCorner | null>(null);
 
   const { toast } = useToast();
+
+  const selectedCamera = useMemo(() => {
+    if (!selectedCameraId) return null;
+    return cameras.find(c => c.id === selectedCameraId) || null;
+  }, [cameras, selectedCameraId]);
 
   const fovPoints = useMemo(() => {
     if (!selectedCamera?.fov) return [];
@@ -32,8 +37,7 @@ export function ConfigDashboard() {
   }, [selectedCamera]);
 
   const handleCameraChange = (cameraId: string) => {
-    const camera = cameras.find(c => c.id === cameraId) || null;
-    setSelectedCamera(camera);
+    setSelectedCameraId(cameraId);
   };
 
   const handleMapClick = (latLng: { lat: number; lng: number }) => {
@@ -55,6 +59,11 @@ export function ConfigDashboard() {
       }
       const cornerIndex = CORNERS.indexOf(selectedCorner);
       const newFov = [...(selectedCamera.fov || [])];
+      
+      // Fill array up to the corner index if it's sparse
+      for(let i=0; i<=cornerIndex; i++) {
+        if(!newFov[i]) newFov[i] = latLng;
+      }
       newFov[cornerIndex] = latLng;
       
       const updatedCameras = cameras.map(c =>
@@ -91,16 +100,16 @@ export function ConfigDashboard() {
             <CardDescription>Select a camera and mode to configure its position and field of view.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Select onValueChange={handleCameraChange} value={selectedCamera?.id}>
+            <Select onValueChange={handleCameraChange} value={selectedCameraId ?? ""}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a camera..." />
+                <SelectValue placeholder={cameras.length > 0 ? "Select a camera..." : "Loading cameras..."} />
               </SelectTrigger>
               <SelectContent>
-                {cameras.map(camera => (
+                {cameras.length > 0 ? cameras.map(camera => (
                   <SelectItem key={camera.id} value={camera.id}>
                     {camera.name}
                   </SelectItem>
-                ))}
+                )) : <SelectItem value="loading" disabled>Loading...</SelectItem>}
               </SelectContent>
             </Select>
 

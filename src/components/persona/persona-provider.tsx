@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { Persona, Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, SocialMediaPost, CrowdFlowData } from '@/lib/types';
-import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CAMERAS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS, INITIAL_CROWD_FLOW } from '@/lib/mock-data';
+import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS, INITIAL_CROWD_FLOW, INITIAL_CAMERAS } from '@/lib/mock-data';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, setDoc, writeBatch } from "firebase/firestore"; 
 
@@ -134,6 +134,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
       
       if (timeRef.current % 5 === 0) {
         setCrowdFlow(prevFlow => {
+          if (prevFlow.length === 0) return [];
           const lastDataPoint = prevFlow[prevFlow.length - 1];
           const newTime = new Date(new Date(`1970-01-01T${lastDataPoint.time}:00Z`).getTime() + 5 * 60000).toTimeString().slice(0, 5);
           const newPoint: CrowdFlowData = {
