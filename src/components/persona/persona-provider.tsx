@@ -6,7 +6,7 @@ import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { Persona, Incident, Unit, Camera, PredictionPolygon, CrowdDensityPoint, Briefing, SocialMediaPost, CrowdFlowData } from '@/lib/types';
 import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_PREDICTIONS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS, INITIAL_CROWD_FLOW, INITIAL_CAMERAS } from '@/lib/mock-data';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, setDoc, writeBatch } from "firebase/firestore"; 
+import { collection, getDocs, doc, writeBatch } from "firebase/firestore"; 
 
 interface PersonaContextType {
   persona: Persona;
@@ -55,7 +55,9 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         const batch = writeBatch(db);
         changedCameras.forEach(camera => {
             const camRef = doc(db, "cameras", camera.id);
-            batch.set(camRef, camera, { merge: true });
+            // Ensure fov is an array, not undefined
+            const cameraData = { ...camera, fov: camera.fov || [] };
+            batch.set(camRef, cameraData, { merge: true });
         });
         await batch.commit();
       } catch(e) {
@@ -78,7 +80,9 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
                 const batch = writeBatch(db);
                 INITIAL_CAMERAS.forEach((camera) => {
                     const docRef = doc(db, "cameras", camera.id);
-                    batch.set(docRef, camera);
+                    // Ensure the fov field is present, even if empty.
+                    const cameraData = { ...camera, fov: camera.fov || [] };
+                    batch.set(docRef, cameraData);
                 });
                 await batch.commit();
                 setCameras(INITIAL_CAMERAS);
@@ -90,6 +94,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
             }
         } catch (error) {
             console.error("Error fetching camera configuration:", error);
+            // Fallback to mock data if Firestore fails
             setCameras(INITIAL_CAMERAS);
         }
     };

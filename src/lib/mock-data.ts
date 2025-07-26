@@ -49,6 +49,7 @@ export const INITIAL_CAMERAS: Camera[] = [
   { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0621, lng: 77.47625 }, heading: 0, pitch: 3, fov: [] },
 ];
 
+
 export const INITIAL_PREDICTIONS: PredictionPolygon[] = [
     {
         id: 'pred-1',
