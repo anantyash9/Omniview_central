@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -39,34 +40,40 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
 
   // Function to update cameras in both state and Firestore
   const updateCameras = async (newCameras: Camera[]) => {
-    setCameras(newCameras);
-
     // Find the difference between new and old cameras to only update changed ones
     const oldCameras = cameras;
-    const changedCameras = newCameras.filter((newCam, index) => 
-        JSON.stringify(newCam) !== JSON.stringify(oldCameras[index])
-    );
+    const changedCameras = newCameras.filter((newCam) => {
+        const oldCam = oldCameras.find(c => c.id === newCam.id);
+        return !oldCam || JSON.stringify(newCam) !== JSON.stringify(oldCam);
+    });
+    
+    // Update state immediately for responsiveness
+    setCameras(newCameras);
     
     if (changedCameras.length > 0) {
-      const batch = writeBatch(db);
-      changedCameras.forEach(camera => {
-        const camRef = doc(db, "cameras", camera.id);
-        batch.set(camRef, camera, { merge: true }); // Use merge to avoid overwriting complete doc
-      });
-      await batch.commit();
+      try {
+        const batch = writeBatch(db);
+        changedCameras.forEach(camera => {
+            const camRef = doc(db, "cameras", camera.id);
+            batch.set(camRef, camera, { merge: true });
+        });
+        await batch.commit();
+      } catch(e) {
+        console.error("Failed to save camera updates to Firestore:", e);
+      }
     }
   };
 
+  // Effect for fetching initial camera data from Firestore
   useEffect(() => {
     const fetchAndSetCameras = async () => {
-        if (dataLoaded.current) return; // Prevent re-fetching
+        if (dataLoaded.current) return;
         dataLoaded.current = true;
 
         const cameraCollection = collection(db, "cameras");
         try {
             const querySnapshot = await getDocs(cameraCollection);
             if (querySnapshot.empty) {
-                // If firestore is empty, populate it with initial mock data
                 console.log("No camera configs found in Firestore. Seeding with mock data.");
                 const batch = writeBatch(db);
                 INITIAL_CAMERAS.forEach((camera) => {
@@ -76,22 +83,23 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
                 await batch.commit();
                 setCameras(INITIAL_CAMERAS);
             } else {
-                // If data exists, load it into state
-                const camerasFromFirestore = querySnapshot.docs.map(doc => doc.data() as Camera);
+                const camerasFromFirestore = querySnapshot.docs
+                  .map(doc => doc.data() as Camera)
+                  .sort((a,b) => a.name.localeCompare(b.name)); // Sort for consistency
                 setCameras(camerasFromFirestore);
             }
         } catch (error) {
             console.error("Error fetching camera configuration:", error);
-            // Fallback to mock data on error
             setCameras(INITIAL_CAMERAS);
         }
     };
     
     fetchAndSetCameras();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Effect for live data simulation
   useEffect(() => {
-    // This interval is for live simulation and doesn't depend on camera data fetching
     const interval = setInterval(() => {
       timeRef.current += 1;
 
