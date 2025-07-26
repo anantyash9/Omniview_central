@@ -28,11 +28,38 @@ export function SvgOverlay({ bounds, imageUrl }: SvgOverlayProps) {
         private bounds: google.maps.LatLngBounds;
         private imageUrl: string;
         private div: HTMLDivElement | null = null;
+        private rotation: number;
       
         constructor(bounds: google.maps.LatLngBounds, imageUrl: string) {
           super();
           this.bounds = bounds;
           this.imageUrl = imageUrl;
+          
+          const ne = this.bounds.getNorthEast();
+          const sw = this.bounds.getSouthWest();
+          const projection = map.getProjection();
+
+          if (!projection) {
+              this.rotation = 0;
+              return;
+          }
+
+          // We can't use the SW and NE to calculate the rotation,
+          // instead we need the top-left and top-right corners.
+          const topRight = new google.maps.LatLng(ne.lat(), ne.lng());
+          const topLeft = new google.maps.LatLng(ne.lat(), sw.lng());
+
+          const topRightPoint = projection.fromLatLngToPoint(topRight);
+          const topLeftPoint = projection.fromLatLngToPoint(topLeft);
+
+          if (!topRightPoint || !topLeftPoint) {
+              this.rotation = 0;
+              return;
+          }
+
+          const dx = topRightPoint.x - topLeftPoint.x;
+          const dy = topRightPoint.y - topLeftPoint.y;
+          this.rotation = Math.atan2(dy, dx) * (180 / Math.PI);
         }
       
         onAdd() {
@@ -46,6 +73,7 @@ export function SvgOverlay({ bounds, imageUrl }: SvgOverlayProps) {
           img.style.width = "100%";
           img.style.height = "100%";
           img.style.position = "absolute";
+          img.style.objectFit = 'contain';
           img.style.opacity = '0.75';
       
           div.appendChild(img);
@@ -72,6 +100,8 @@ export function SvgOverlay({ bounds, imageUrl }: SvgOverlayProps) {
             this.div.style.top = ne.y + "px";
             this.div.style.width = ne.x - sw.x + "px";
             this.div.style.height = sw.y - ne.y + "px";
+            this.div.style.transformOrigin = 'top left';
+            this.div.style.transform = `rotate(${this.rotation}deg)`;
         }
       
         onRemove() {
@@ -92,8 +122,11 @@ export function SvgOverlay({ bounds, imageUrl }: SvgOverlayProps) {
     setOverlay(groundOverlay);
 
     return () => {
-      groundOverlay.setMap(null);
+      if (overlay) {
+        overlay.setMap(null);
+      }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, bounds, imageUrl]);
 
   return null;
