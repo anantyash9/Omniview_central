@@ -127,14 +127,7 @@ export function LiveMap() {
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedPost, setSelectedPost] = useState<SocialMediaPost | null>(null);
 
-  const center = { lat: 13.06265, lng: 77.47594 };
-
-  const svgBounds = {
-    north: 13.06342,
-    south: 13.061896,
-    east: 77.47628,
-    west: 77.475594,
-  };
+  const center = { lat: 13.062647, lng: 77.4747194 };
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden shadow-md border">
@@ -145,7 +138,13 @@ export function LiveMap() {
         gestureHandling={'greedy'}
         disableDefaultUI={true}
       >
-        <SvgOverlay bounds={svgBounds} imageUrl="/floorplan.svg" />
+        <SvgOverlay 
+          imageUrl="/floorplan.svg"
+          center={{ lat: 13.062647, lng: 77.4747194 }}
+          rotation={-12}
+          width={150}
+          height={150}
+        />
 
         {/* Crowd Density Heatmap */}
         <HeatmapLayer data={crowdDensity} opacity={0.7} />
