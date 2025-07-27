@@ -31,13 +31,23 @@ const PersonaContext = createContext<PersonaContextType | undefined>(undefined);
 
 // Helper function to get a base64 data URI from an image URL
 const toDataURL = (url: string): Promise<string> => fetch(url)
-    .then(response => response.blob())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.blob();
+    })
     .then(blob => new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
         reader.onerror = reject;
         reader.readAsDataURL(blob);
-    }));
+    }))
+    .catch(error => {
+        console.warn(`Failed to fetch stream at ${url}. Using placeholder. Error:`, error);
+        // Fallback to a placeholder data URI
+        return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAAABCAYAAAA/H/aVAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAUSURBVO3BAQEAAAAABIF6f7kLqA8wAlUBASwQ08UAAAAASUVORK5CYII="; // 1x1 black pixel
+    });
 
 export function PersonaProvider({ children }: { children: ReactNode }) {
   const [persona, setPersona] = useState<Persona>('Commander');
