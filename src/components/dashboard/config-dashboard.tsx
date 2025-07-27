@@ -134,7 +134,7 @@ export function ConfigDashboard() {
         points: path,
         maxDensity: 5,
     };
-    setDensityZones([...densityZones, newZone]);
+    setDensityZones(prevZones => [...prevZones, newZone]);
     setDrawingMode(null);
     setSelectedZoneId(newZone.id);
     toast({ title: "Zone Created", description: `${newZone.name} has been added.` });
@@ -148,7 +148,7 @@ export function ConfigDashboard() {
   const handleDeleteZone = async (zoneId: string) => {
     try {
         await deleteDoc(doc(db, "densityZones", zoneId));
-        // Update local state after successful deletion
+        
         const newZones = densityZones.filter(z => z.id !== zoneId)
         setDensityZones(newZones);
         
@@ -313,7 +313,6 @@ export function ConfigDashboard() {
         <ApiProviderWrapper>
           <ConfigMap 
             onMapClick={handleMapClick}
-            fovPoints={fovPoints}
             cameras={cameras}
             selectedCamera={selectedCamera}
             densityZones={densityZones}
