@@ -12,39 +12,39 @@ import {
 import type { Camera, DensityZone } from '@/lib/types';
 import { SvgOverlay } from '../shared/svg-overlay';
 import { Camera as CameraIcon } from 'lucide-react';
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 declare const google: any;
 
-const Polygon = (props: google.maps.PolygonOptions) => {
+const Polygon = (props: google.maps.PolygonOptions & { id: string }) => {
   const map = useMap();
   const [polygon, setPolygon] = useState<google.maps.Polygon | null>(null);
 
   useEffect(() => {
-    if (!map) return;
-    
-    // Create the polygon if it doesn't exist
+    console.log(`[Polygon ${props.id}] useEffect START`);
+    if (!map) {
+      console.log(`[Polygon ${props.id}] No map instance yet.`);
+      return;
+    };
+
     if (!polygon) {
+      console.log(`[Polygon ${props.id}] CREATING new google.maps.Polygon`);
       const newPolygon = new google.maps.Polygon(props);
       newPolygon.setMap(map);
       setPolygon(newPolygon);
+    } else {
+      console.log(`[Polygon ${props.id}] UPDATING existing polygon options.`);
+      polygon.setOptions(props);
     }
-    
-    // Cleanup: remove polygon from map when component unmounts
+
+    // Cleanup function
     return () => {
+      console.log(`[Polygon ${props.id}] useEffect CLEANUP running. Removing polygon from map.`);
       if (polygon) {
         polygon.setMap(null);
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map]); 
-
-  useEffect(() => {
-    // Update polygon options when props change
-    if (polygon) {
-      polygon.setOptions(props);
-    }
-  }, [polygon, props]);
+  }, [map, polygon, props]);
 
   return null;
 };
@@ -126,6 +126,8 @@ export function ConfigMap({
 }: ConfigMapProps) {
   const center = { lat: 13.062252, lng: 77.475917 };
 
+  console.log(`[ConfigMap Render] Active Tab: ${activeTab}. Received ${cameras.length} cameras, ${densityZones.length} zones. Selected Camera: ${selectedCamera?.id}, Selected Zone: ${selectedZoneId}`);
+
   const handleMapClickHandler = (e: MapMouseEvent) => {
     if (drawingMode) return; // Prevent camera placement while drawing
     if (onMapClick && e.detail.latLng) {
@@ -203,10 +205,11 @@ export function ConfigMap({
                     </AdvancedMarker>
                 ))}
                 
-                {fovPoints.length > 0 && (
+                {fovPoints.length > 0 && selectedCamera && (
                     <>
                         <Polygon
-                            key={`fov-poly-${selectedCamera?.id}`}
+                            id={`fov-poly-${selectedCamera.id}`}
+                            key={`fov-poly-${selectedCamera.id}`}
                             paths={fovPoints}
                             editable={false}
                             draggable={false}
@@ -217,7 +220,7 @@ export function ConfigMap({
                             fillOpacity={0.3}
                         />
                         {fovPoints.map((point, index) => (
-                            <AdvancedMarker key={`fov-marker-${selectedCamera?.id}-${index}`} position={point}>
+                            <AdvancedMarker key={`fov-marker-${selectedCamera.id}-${index}`} position={point}>
                                 <Pin background={'#FFC107'} borderColor={'#B28505'} glyphColor={'#000000'}>
                                     <span className="text-sm font-bold">{index + 1}</span>
                                 </Pin>
@@ -236,6 +239,7 @@ export function ConfigMap({
                     
                     return (
                         <Polygon
+                            id={zone.id}
                             key={zone.id}
                             paths={zone.points}
                             editable={false}
