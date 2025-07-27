@@ -148,7 +148,10 @@ export function ConfigDashboard() {
   const handleDeleteZone = async (zoneId: string) => {
     try {
         await deleteDoc(doc(db, "densityZones", zoneId));
-        setDensityZones(densityZones.filter(z => z.id !== zoneId));
+        // Optimistically update UI
+        const newZones = densityZones.filter(z => z.id !== zoneId)
+        setDensityZones(newZones);
+
         if (selectedZoneId === zoneId) {
             setSelectedZoneId(null);
         }

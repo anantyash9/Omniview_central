@@ -12,22 +12,25 @@ import {
 import type { Camera, DensityZone } from '@/lib/types';
 import { SvgOverlay } from '../shared/svg-overlay';
 import { Camera as CameraIcon } from 'lucide-react';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 
 declare const google: any;
 
-// A wrapper for google.maps.Polygon to use it as a React component
+// A correctly implemented wrapper for google.maps.Polygon
 const Polygon = (props: google.maps.PolygonOptions) => {
     const map = useMap();
     const [polygon, setPolygon] = useState<google.maps.Polygon | null>(null);
 
+    // Create the polygon instance
     useEffect(() => {
-        if (map && !polygon) {
-            const newPolygon = new google.maps.Polygon(props);
+        if (!map) return;
+        if (!polygon) {
+            const newPolygon = new google.maps.Polygon();
             newPolygon.setMap(map);
             setPolygon(newPolygon);
         }
 
+        // Cleanup: remove polygon from map when component unmounts
         return () => {
             if (polygon) {
                 polygon.setMap(null);
@@ -36,6 +39,7 @@ const Polygon = (props: google.maps.PolygonOptions) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [map]);
 
+    // Update polygon options when props change
     useEffect(() => {
         if (polygon) {
             polygon.setOptions(props);
