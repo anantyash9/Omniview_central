@@ -12,39 +12,39 @@ import {
 import type { Camera, DensityZone } from '@/lib/types';
 import { SvgOverlay } from '../shared/svg-overlay';
 import { Camera as CameraIcon } from 'lucide-react';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 
 declare const google: any;
 
 const Polygon = (props: google.maps.PolygonOptions & { id: string }) => {
   const map = useMap();
-  const [polygon, setPolygon] = useState<google.maps.Polygon | null>(null);
+  const polygonRef = useRef<google.maps.Polygon | null>(null);
 
+  // Create the polygon instance
   useEffect(() => {
-    console.log(`[Polygon ${props.id}] useEffect START`);
-    if (!map) {
-      console.log(`[Polygon ${props.id}] No map instance yet.`);
-      return;
-    };
+    if (!map) return;
 
-    if (!polygon) {
-      console.log(`[Polygon ${props.id}] CREATING new google.maps.Polygon`);
-      const newPolygon = new google.maps.Polygon(props);
-      newPolygon.setMap(map);
-      setPolygon(newPolygon);
-    } else {
-      console.log(`[Polygon ${props.id}] UPDATING existing polygon options.`);
-      polygon.setOptions(props);
+    if (!polygonRef.current) {
+        polygonRef.current = new google.maps.Polygon(props);
+        polygonRef.current.setMap(map);
     }
 
-    // Cleanup function
+    // Cleanup: remove polygon from map when component unmounts
     return () => {
-      console.log(`[Polygon ${props.id}] useEffect CLEANUP running. Removing polygon from map.`);
-      if (polygon) {
-        polygon.setMap(null);
-      }
+        if (polygonRef.current) {
+            polygonRef.current.setMap(null);
+            polygonRef.current = null;
+        }
     };
-  }, [map, polygon, props]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map]); // Only depends on map
+
+  // Update polygon options when props change
+  useEffect(() => {
+    if (polygonRef.current) {
+        polygonRef.current.setOptions(props);
+    }
+  }, [props]);
 
   return null;
 };
@@ -125,8 +125,6 @@ export function ConfigMap({
     activeTab,
 }: ConfigMapProps) {
   const center = { lat: 13.062252, lng: 77.475917 };
-
-  console.log(`[ConfigMap Render] Active Tab: ${activeTab}. Received ${cameras.length} cameras, ${densityZones.length} zones. Selected Camera: ${selectedCamera?.id}, Selected Zone: ${selectedZoneId}`);
 
   const handleMapClickHandler = (e: MapMouseEvent) => {
     if (drawingMode) return; // Prevent camera placement while drawing
