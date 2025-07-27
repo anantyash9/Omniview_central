@@ -3,7 +3,7 @@ import type {NextConfig} from 'next';
 const nextConfig: NextConfig = {
   /* config options here */
   env: {
-    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: 'AIzaSyDYosJ3kT2_v0s47Q0XUuxYd4XVRGuSPRM',
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: '',
   },
   typescript: {
     ignoreBuildErrors: true,
