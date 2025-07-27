@@ -1,11 +1,14 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Cpu, FileText, Send, Shield, Camera, Airplay, MessageSquare, Users, AreaChart, Bot, Clock, CheckCircle2 } from 'lucide-react';
+import { Cpu, FileText, Send, Shield, Camera, Airplay, MessageSquare, Users, AreaChart, Bot, Clock, CheckCircle2, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
+import { Button } from '../ui/button';
+import Link from 'next/link';
 
 const NODE_CONFIG = {
   // Inputs
@@ -189,14 +192,22 @@ export function OperationsAgentGrid() {
 
   return (
     <div className="p-4 md:p-8 h-full bg-background flex flex-col">
-       <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-          <Bot className="w-8 h-8 text-primary" />
-          Operations Agent Grid
-        </h1>
-        <p className="text-muted-foreground">
-          Live simulation of AI agents collaborating to manage event security.
-        </p>
+       <div className="mb-6 flex justify-between items-start">
+        <div>
+            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+            <Bot className="w-8 h-8 text-primary" />
+            Operations Agent Grid
+            </h1>
+            <p className="text-muted-foreground">
+            Live simulation of AI agents collaborating to manage event security.
+            </p>
+        </div>
+        <Link href="/video-wall" passHref>
+          <Button variant="outline">
+            <Video className="mr-2" />
+            Go to Video Wall
+          </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-grow">
