@@ -21,6 +21,7 @@ interface PersonaContextType {
   saveDensityZonesToFirestore: (zones: DensityZone[]) => Promise<void>;
   crowdDensity: CrowdDensityPoint[];
   briefs: Briefing[];
+  addBrief: (brief: Briefing) => Promise<void>;
   socialMediaPosts: SocialMediaPost[];
   crowdFlow: CrowdFlowData[];
 }
@@ -68,6 +69,21 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
       console.error("Error saving density zones to Firestore: ", error);
     }
   };
+
+  const addBrief = async (brief: Briefing) => {
+    try {
+      // Add to local state
+      setBriefs(prevBriefs => {
+          const newBriefs = [...prevBriefs, brief];
+          return newBriefs.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+      });
+      // Add to Firestore
+      const briefId = `brief-${Date.now()}`;
+      await setDoc(doc(db, "briefs", briefId), brief);
+    } catch (error) {
+       console.error("Error saving new brief to Firestore: ", error);
+    }
+  }
 
   useEffect(() => {
     const fetchAndSetData = async () => {
@@ -208,7 +224,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, [crowdDensity, socialMediaPosts.length]);
 
   return (
-    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras, saveCamerasToFirestore, densityZones, setDensityZones, saveDensityZonesToFirestore, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
+    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras, saveCamerasToFirestore, densityZones, setDensityZones, saveDensityZonesToFirestore, crowdDensity, briefs, addBrief, socialMediaPosts, crowdFlow }}>
       {children}
     </PersonaContext.Provider>
   );
@@ -221,3 +237,4 @@ export function usePersona() {
   }
   return context;
 }
+
