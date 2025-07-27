@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import ApiProviderWrapper from '../api-provider-wrapper';
 import { usePersona } from '@/components/persona/persona-provider';
 import type { Camera, DensityZone } from '@/lib/types';
@@ -27,7 +27,7 @@ type ActiveTab = 'cameras' | 'zones';
 const CORNERS: FovCorner[] = ['topLeft', 'topRight', 'bottomRight', 'bottomLeft'];
 
 export function ConfigDashboard() {
-  const { cameras, setCameras, densityZones, setDensityZones } = usePersona();
+  const { cameras, setCameras, densityZones, setDensityZones, saveDensityZonesToFirestore } = usePersona();
   const [activeTab, setActiveTab] = useState<ActiveTab>('cameras');
   
   // Camera State
@@ -134,7 +134,11 @@ export function ConfigDashboard() {
         points: path,
         maxDensity: 5,
     };
-    setDensityZones(prevZones => [...prevZones, newZone]);
+
+    const newZones = [...densityZones, newZone];
+    setDensityZones(newZones);
+    saveDensityZonesToFirestore(newZones);
+
     setDrawingMode(null);
     setSelectedZoneId(newZone.id);
     toast({ title: "Zone Created", description: `${newZone.name} has been added.` });
@@ -143,6 +147,7 @@ export function ConfigDashboard() {
   const handleZoneUpdate = (zoneId: string, updates: Partial<DensityZone>) => {
     const updatedZones = densityZones.map(z => z.id === zoneId ? {...z, ...updates} : z);
     setDensityZones(updatedZones);
+    saveDensityZonesToFirestore(updatedZones);
   }
 
   const handleDeleteZone = async (zoneId: string) => {

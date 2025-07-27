@@ -16,7 +16,8 @@ interface PersonaContextType {
   cameras: Camera[];
   setCameras: (cameras: Camera[]) => void;
   densityZones: DensityZone[];
-  setDensityZones: (zones: DensityZone[]) => void;
+  setDensityZones: React.Dispatch<React.SetStateAction<DensityZone[]>>;
+  saveDensityZonesToFirestore: (zones: DensityZone[]) => Promise<void>;
   crowdDensity: CrowdDensityPoint[];
   briefs: Briefing[];
   socialMediaPosts: SocialMediaPost[];
@@ -54,8 +55,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
     }
   };
   
-  const handleSetDensityZones = async (updatedZones: DensityZone[]) => {
-    setDensityZones(updatedZones);
+  const saveDensityZonesToFirestore = async (updatedZones: DensityZone[]) => {
     try {
         const batch = writeBatch(db);
         updatedZones.forEach(zone => {
@@ -207,7 +207,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, [crowdDensity, socialMediaPosts.length]);
 
   return (
-    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras: handleSetCameras, densityZones, setDensityZones: handleSetDensityZones, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
+    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras: handleSetCameras, densityZones, setDensityZones, saveDensityZonesToFirestore, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
       {children}
     </PersonaContext.Provider>
   );
