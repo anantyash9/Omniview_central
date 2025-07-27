@@ -17,24 +17,24 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 declare const google: any;
 
 // A correctly implemented wrapper for google.maps.Polygon
-const Polygon = (props: google.maps.PolygonOptions) => {
+const Polygon = (props: google.maps.PolygonOptions & { id: string }) => {
     const map = useMap();
     const [polygon, setPolygon] = useState<google.maps.Polygon | null>(null);
 
     // Create the polygon instance
     useEffect(() => {
+        console.log(`[Polygon ${props.id}] useEffect: Mounting or map changed.`);
         if (!map) return;
-        if (!polygon) {
-            const newPolygon = new google.maps.Polygon();
-            newPolygon.setMap(map);
-            setPolygon(newPolygon);
-        }
+        
+        console.log(`[Polygon ${props.id}] Creating new google.maps.Polygon`);
+        const newPolygon = new google.maps.Polygon(props);
+        newPolygon.setMap(map);
+        setPolygon(newPolygon);
 
         // Cleanup: remove polygon from map when component unmounts
         return () => {
-            if (polygon) {
-                polygon.setMap(null);
-            }
+            console.log(`[Polygon ${props.id}] useEffect cleanup: Unmounting.`);
+            newPolygon.setMap(null);
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [map]);
@@ -42,6 +42,7 @@ const Polygon = (props: google.maps.PolygonOptions) => {
     // Update polygon options when props change
     useEffect(() => {
         if (polygon) {
+            console.log(`[Polygon ${props.id}] useEffect: Props changed, updating options.`);
             polygon.setOptions(props);
         }
     }, [polygon, props]);
@@ -127,6 +128,7 @@ export function ConfigMap({
     activeTab,
 }: ConfigMapProps) {
   const center = { lat: 13.062252, lng: 77.475917 };
+  console.log(`[ConfigMap Render] Active Tab: ${activeTab}. Received ${densityZones.length} density zones.`);
 
   const handleMapClickHandler = (e: MapMouseEvent) => {
     if (drawingMode) return; // Prevent camera placement while drawing
@@ -158,6 +160,7 @@ export function ConfigMap({
         
         {activeTab === 'cameras' && (
             <>
+                {console.log("[ConfigMap Render] Rendering Camera elements.")}
                 {cameras.map((camera) => (
                     <AdvancedMarker
                         key={camera.id}
@@ -173,6 +176,7 @@ export function ConfigMap({
                 {fovPoints.length > 0 && (
                     <>
                         <Polygon
+                            id={`fov-${selectedCamera?.id}`}
                             paths={fovPoints}
                             editable={false}
                             draggable={false}
@@ -196,10 +200,13 @@ export function ConfigMap({
         
         {activeTab === 'zones' && (
             <>
+                {console.log("[ConfigMap Render] Rendering Density Zone elements.")}
                 {densityZones.map((zone) => {
+                    console.log(`[ConfigMap Render] Rendering zone: ${zone.name} (${zone.id})`);
                     return (
                         <Polygon
                             key={zone.id}
+                            id={zone.id}
                             paths={zone.points}
                             editable={false}
                             draggable={false}
