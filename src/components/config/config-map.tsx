@@ -128,6 +128,11 @@ export function ConfigMap({
 }: ConfigMapProps) {
   const center = { lat: 13.062252, lng: 77.475917 };
 
+  useEffect(() => {
+    console.log(`[ConfigMap Render] Active Tab: ${activeTab}. Received ${densityZones.length} density zones.`);
+  }, [activeTab, densityZones]);
+
+
   const handleMapClickHandler = (e: MapMouseEvent) => {
     if (drawingMode) return; // Prevent camera placement while drawing
     if (onMapClick && e.detail.latLng) {
@@ -196,19 +201,22 @@ export function ConfigMap({
         
         {activeTab === 'zones' && (
             <>
-                {densityZones.map((zone) => (
-                    <Polygon
-                        key={zone.id}
-                        paths={zone.points}
-                        editable={false}
-                        draggable={false}
-                        strokeColor={selectedZoneId === zone.id ? "#1E88E5" : "#FF5722"}
-                        strokeOpacity={1}
-                        strokeWeight={selectedZoneId === zone.id ? 4 : 2}
-                        fillColor={selectedZoneId === zone.id ? "#42A5F5" : "#FF5722"}
-                        fillOpacity={0.4}
-                    />
-                ))}
+                {densityZones.map((zone) => {
+                    console.log(`[ConfigMap Render] Rendering zone: ${zone.name} (${zone.id})`);
+                    return (
+                        <Polygon
+                            key={zone.id}
+                            paths={zone.points}
+                            editable={false}
+                            draggable={false}
+                            strokeColor={selectedZoneId === zone.id ? "#1E88E5" : "#FF5722"}
+                            strokeOpacity={1}
+                            strokeWeight={selectedZoneId === zone.id ? 4 : 2}
+                            fillColor={selectedZoneId === zone.id ? "#42A5F5" : "#FF5722"}
+                            fillOpacity={0.4}
+                        />
+                    );
+                })}
             </>
         )}
       </Map>
