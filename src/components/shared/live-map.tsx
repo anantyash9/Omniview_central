@@ -76,10 +76,10 @@ const HeatmapLayer = ({
         const zoom = map.getZoom();
         if (zoom) {
             // Scale the radius based on zoom level for a more consistent feel
-            const newRadius = 80 * Math.pow(2, zoom - 17);
+            const newRadius = 40 * Math.pow(2, zoom - 17);
             heatmap.set('radius', newRadius);
         } else {
-            heatmap.set('radius', 80);
+            heatmap.set('radius', 40);
         }
     };
 
