@@ -13,7 +13,7 @@ import { generateCommanderBrief } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
 export function BriefingTimeline() {
-  const { briefs: initialBriefs, addBrief, incidents, units, crowdDensity } = usePersona();
+  const { briefs: initialBriefs, addBrief, incidents, units, crowdDensity, densityZones } = usePersona();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [isPending, startTransition] = useTransition();
@@ -53,6 +53,7 @@ export function BriefingTimeline() {
             incidents,
             units,
             crowdDensity,
+            densityZones,
             timestamp,
         };
         const result = await generateCommanderBrief(input);

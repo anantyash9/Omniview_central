@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { point, polygon, booleanPointInPolygon } from '@turf/turf';
 
 const IncidentSchema = z.object({
   id: z.string(),
@@ -32,11 +33,18 @@ const CrowdDensityPointSchema = z.object({
     density: z.number(),
 });
 
+const DensityZoneSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    points: z.array(z.object({ lat: z.number(), lng: z.number() })),
+    maxDensity: z.number(),
+});
 
 const GenerateCommanderBriefInputSchema = z.object({
   incidents: z.array(IncidentSchema).describe('A list of current incidents.'),
   units: z.array(UnitSchema).describe('A list of available and deployed units.'),
   crowdDensity: z.array(CrowdDensityPointSchema).describe('Data on crowd density across the venue.'),
+  densityZones: z.array(DensityZoneSchema).describe('A list of named zones in the venue.'),
   timestamp: z.string().describe('The current timestamp for the brief.')
 });
 export type GenerateCommanderBriefInput = z.infer<typeof GenerateCommanderBriefInputSchema>;
@@ -55,13 +63,13 @@ export async function generateCommanderBrief(
 
 const prompt = ai.definePrompt({
   name: 'generateCommanderBriefPrompt',
-  input: {schema: GenerateCommanderBriefInputSchema},
+  input: {schema: z.any()}, // Allow extra fields from flow
   output: {schema: GenerateCommanderBriefOutputSchema},
   prompt: `You are an AI assistant for a security command center. Your task is to generate a concise, natural language briefing for the event commander.
 
   The briefing should be no more than 40 words.
 
-  Synthesize the following information into a summary of the current situation. Focus on the most critical information, such as high-severity incidents, unit deployment status, and significant crowd density changes.
+  Synthesize the following information into a summary of the current situation. Focus on the most critical information, such as high-severity incidents, unit deployment status, and significant crowd density changes within named zones.
 
   Current Time: {{{timestamp}}}
 
@@ -79,11 +87,11 @@ const prompt = ai.definePrompt({
   - No units reported.
   {{/each}}
 
-  Crowd Density:
-  {{#each crowdDensity}}
-  - Density of {{density}} at lat:{{location.lat}}, lng:{{location.lng}}.
+  Contextual Crowd Density:
+  {{#each contextualDensity}}
+  - Density of {{density}} in {{zoneName}}.
   {{else}}
-  - No crowd density data.
+  - No significant crowd density in named zones.
   {{/each}}
 
   Generate a brief summary based on this data.
@@ -96,8 +104,33 @@ const generateCommanderBriefFlow = ai.defineFlow(
     inputSchema: GenerateCommanderBriefInputSchema,
     outputSchema: GenerateCommanderBriefOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input) => {
+    // Pre-process crowd density to map hotspots to zone names
+    const contextualDensity = input.crowdDensity
+      .map(densityPoint => {
+        const pt = point([densityPoint.location.lng, densityPoint.location.lat]);
+        for (const zone of input.densityZones) {
+          if (zone.points.length >= 3) {
+            const polyPoints = [...zone.points, zone.points[0]]; // Close the polygon
+            const poly = polygon([polyPoints.map(p => [p.lng, p.lat])]);
+            if (booleanPointInPolygon(pt, poly)) {
+              return {
+                zoneName: zone.name,
+                density: densityPoint.density > 0.7 ? 'High' : (densityPoint.density > 0.4 ? 'Medium' : 'Low'),
+              };
+            }
+          }
+        }
+        return null;
+      })
+      .filter(item => item !== null && item.density !== 'Low'); // Only report Medium or High density in zones
+
+    const promptInput = {
+      ...input,
+      contextualDensity,
+    };
+    
+    const {output} = await prompt(promptInput);
     return output!;
   }
 );
