@@ -126,19 +126,30 @@ const Polygon = (props: google.maps.PolygonOptions) => {
     return null;
 };
 
-
-export function LiveMap() {
+type LayerVisibility = {
+    heatmap: boolean;
+    incidents: boolean;
+    units: boolean;
+    social: boolean;
+    floorplan: boolean;
+    cameras: boolean;
+};
+export function LiveMap({
+    initialVisibility
+}: {
+    initialVisibility?: Partial<LayerVisibility>
+}) {
   const { incidents, units, crowdDensity, socialMediaPosts, cameras } = usePersona();
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedPost, setSelectedPost] = useState<SocialMediaPost | null>(null);
-  const [layerVisibility, setLayerVisibility] = useState({
-    heatmap: true,
-    incidents: true,
-    units: true,
-    social: true,
-    floorplan: true,
-    cameras: true,
+  const [layerVisibility, setLayerVisibility] = useState<LayerVisibility>({
+    heatmap: initialVisibility?.heatmap ?? true,
+    incidents: initialVisibility?.incidents ?? true,
+    units: initialVisibility?.units ?? true,
+    social: initialVisibility?.social ?? true,
+    floorplan: initialVisibility?.floorplan ?? true,
+    cameras: initialVisibility?.cameras ?? true,
   });
 
   const center = { lat: 13.062252, lng: 77.475917 };
