@@ -75,6 +75,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
       // Add to local state
       setBriefs(prevBriefs => {
           const newBriefs = [...prevBriefs, brief];
+          // Ensure briefs are always sorted chronologically
           return newBriefs.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
       });
       // Add to Firestore
@@ -237,4 +238,3 @@ export function usePersona() {
   }
   return context;
 }
-

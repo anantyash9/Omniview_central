@@ -32,15 +32,18 @@ export function BriefingTimeline() {
       setCurrent(api.selectedScrollSnap());
     };
     
-    // Set initial snap, and move to it if briefs change
-    setCurrent(0);
-    api.scrollTo(0, true);
     api.on('select', handleSelect);
+    
+    // When the number of briefs changes (i.e., a new one is added),
+    // re-initialize the carousel and scroll to the first slide.
+    api.reInit();
+    api.scrollTo(0, true);
+    setCurrent(0);
 
     return () => {
       api.off('select', handleSelect);
     };
-  }, [api, briefs]); // Rerun when briefs array changes
+  }, [api, totalBriefs]); // Rerun specifically when the *count* of briefs changes.
 
   const handleSliderChange = (value: number[]) => {
     api?.scrollTo(value[0]);
@@ -153,4 +156,5 @@ export function BriefingTimeline() {
     </div>
   );
 }
+
 
