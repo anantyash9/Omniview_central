@@ -94,9 +94,8 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   
   const getCameraFrames = async (): Promise<{ cameraName: string; frameDataUri: string }[]> => {
     const framePromises = cameras.map(async (camera) => {
-        // In a real application, you'd have a mechanism to grab a live frame.
-        // For this prototype, we'll convert the placeholder URL to a data URI
-        // to simulate having the raw image data needed for the multimodal prompt.
+        // Fetch the image from the stream URL and convert it to a data URI.
+        // This effectively grabs a single frame from the multipart stream.
         const frameDataUri = await toDataURL(camera.stream || 'https://placehold.co/640x480.png?text=No+Stream');
         return {
             cameraName: camera.name,

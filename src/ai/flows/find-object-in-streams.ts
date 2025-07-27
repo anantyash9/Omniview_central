@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -71,6 +72,7 @@ const findObjectInStreamsFlow = ai.defineFlow(
     outputSchema: FindObjectOutputSchema,
   },
   async (input) => {
+    // Handle cases where the input might be missing critical data.
     if (!input.objectImageDataUri || input.cameraFeeds.length === 0) {
         return { findings: [] };
     }
