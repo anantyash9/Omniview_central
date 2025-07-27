@@ -52,12 +52,15 @@ export function BriefingTimeline() {
   const handleGenerateBrief = () => {
     startTransition(async () => {
         const timestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+        const lastBrief = briefs.length > 0 ? briefs[0].brief : undefined;
+
         const input = {
             incidents,
             units,
             crowdDensity,
             densityZones,
             timestamp,
+            lastBrief,
         };
         const result = await generateCommanderBrief(input);
         console.log('Generated Briefing:', result);
@@ -157,6 +160,3 @@ export function BriefingTimeline() {
     </div>
   );
 }
-
-
-

@@ -45,7 +45,8 @@ const GenerateCommanderBriefInputSchema = z.object({
   units: z.array(UnitSchema).describe('A list of available and deployed units.'),
   crowdDensity: z.array(CrowdDensityPointSchema).describe('Data on crowd density across the venue.'),
   densityZones: z.array(DensityZoneSchema).describe('A list of named zones in the venue.'),
-  timestamp: z.string().describe('The current timestamp for the brief.')
+  timestamp: z.string().describe('The current timestamp for the brief.'),
+  lastBrief: z.string().optional().describe('The text of the last briefing provided to the commander.'),
 });
 export type GenerateCommanderBriefInput = z.infer<typeof GenerateCommanderBriefInputSchema>;
 
@@ -69,32 +70,42 @@ const prompt = ai.definePrompt({
 
   The briefing should be no more than 40 words.
 
-  Synthesize the following information into a summary of the current situation. Focus on the most critical information, such as high-severity incidents, unit deployment status, and significant crowd density changes within named zones.
+  **CRITICAL INSTRUCTIONS:**
+  1.  Analyze the new data provided below.
+  2.  Compare it to the 'Last Briefing'.
+  3.  Generate a NEW briefing that focuses on what has changed.
+  4.  If nothing significant has changed, state that the situation is stable or holding steady. Avoid repeating the previous brief verbatim.
+
+  Last Briefing:
+  {{#if lastBrief}}
+  "{{{lastBrief}}}"
+  {{else}}
+  No previous brief. Provide a summary of the initial situation.
+  {{/if}}
 
   Current Time: {{{timestamp}}}
 
-  Active Incidents:
-  {{#each incidents}}
-  - {{title}} (Severity: {{severity}}): {{description}}
-  {{else}}
-  - No active incidents.
-  {{/each}}
+  Current Data:
+  - Active Incidents:
+    {{#each incidents}}
+    - {{title}} (Severity: {{severity}}): {{description}}
+    {{else}}
+    - No active incidents.
+    {{/each}}
+  - Unit Status:
+    {{#each units}}
+    - {{id}} ({{type}}): {{status}}
+    {{else}}
+    - No units reported.
+    {{/each}}
+  - Contextual Crowd Density:
+    {{#each contextualDensity}}
+    - Density of {{density}} in {{zoneName}}.
+    {{else}}
+    - No significant crowd density in named zones.
+    {{/each}}
 
-  Unit Status:
-  {{#each units}}
-  - {{id}} ({{type}}): {{status}}
-  {{else}}
-  - No units reported.
-  {{/each}}
-
-  Contextual Crowd Density:
-  {{#each contextualDensity}}
-  - Density of {{density}} in {{zoneName}}.
-  {{else}}
-  - No significant crowd density in named zones.
-  {{/each}}
-
-  Generate a brief summary based on this data.
+  Generate a new, concise brief based on the changes from the last one.
   `,
 });
 
