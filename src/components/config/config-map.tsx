@@ -16,34 +16,35 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 
 declare const google: any;
 
-// A correctly implemented wrapper for google.maps.Polygon
-const Polygon = (props: google.maps.PolygonOptions & { id: string }) => {
-    const map = useMap();
-    const [polygon, setPolygon] = useState<google.maps.Polygon | null>(null);
+const Polygon = (props: google.maps.PolygonOptions) => {
+  const map = useMap();
+  const [polygon, setPolygon] = useState<google.maps.Polygon | null>(null);
 
-    // Create the polygon instance
-    useEffect(() => {
-        if (!map) return;
-        
-        const newPolygon = new google.maps.Polygon(props);
-        newPolygon.setMap(map);
-        setPolygon(newPolygon);
+  useEffect(() => {
+    if (!map) return;
+    
+    if (!polygon) {
+      const newPolygon = new google.maps.Polygon(props);
+      newPolygon.setMap(map);
+      setPolygon(newPolygon);
+    }
+    
+    // Cleanup: remove polygon from map when component unmounts
+    return () => {
+      if (polygon) {
+        polygon.setMap(null);
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map]); 
 
-        // Cleanup: remove polygon from map when component unmounts
-        return () => {
-            newPolygon.setMap(null);
-        };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [map]);
+  useEffect(() => {
+    if (polygon) {
+      polygon.setOptions(props);
+    }
+  }, [polygon, props]);
 
-    // Update polygon options when props change
-    useEffect(() => {
-        if (polygon) {
-            polygon.setOptions(props);
-        }
-    }, [polygon, props]);
-
-    return null;
+  return null;
 };
 
 
@@ -102,7 +103,6 @@ const DrawingManager = ({ onPolygonComplete, drawingMode }: { onPolygonComplete:
 
 interface ConfigMapProps {
     onMapClick: (latLng: { lat: number; lng: number }) => void;
-    fovPoints?: { lat: number; lng: number }[];
     cameras: Camera[];
     selectedCamera?: Camera | null;
     densityZones: DensityZone[];
@@ -114,7 +114,6 @@ interface ConfigMapProps {
 
 export function ConfigMap({ 
     onMapClick, 
-    fovPoints = [], 
     cameras, 
     selectedCamera, 
     densityZones,
@@ -131,6 +130,41 @@ export function ConfigMap({
       onMapClick(e.detail.latLng);
     }
   }
+
+  const fovPoints = useMemo(() => {
+    if (!selectedCamera?.fov) return [];
+    return selectedCamera.fov;
+  }, [selectedCamera]);
+  
+  const getZoneColor = (zone: DensityZone, allZones: DensityZone[], isSelected: boolean) => {
+      const HUE_RED = 0;
+      const HUE_GREEN = 120;
+
+      if (isSelected) {
+          return { stroke: '#1E88E5', fill: '#42A5F5' };
+      }
+      
+      if (allZones.length <= 1) {
+          return { stroke: '#0288D1', fill: '#03A9F4' }; // Neutral blue
+      }
+
+      const densities = allZones.map(z => z.maxDensity);
+      const minDensity = Math.min(...densities);
+      const maxDensity = Math.max(...densities);
+
+      if (maxDensity === minDensity) {
+          return { stroke: '#0288D1', fill: '#03A9F4' }; // All same density, use neutral blue
+      }
+
+      // Normalize density from 0 (red) to 1 (green)
+      const t = (zone.maxDensity - minDensity) / (maxDensity - minDensity);
+      const hue = HUE_RED + t * (HUE_GREEN - HUE_RED);
+
+      return {
+          stroke: `hsl(${hue}, 80%, 40%)`,
+          fill: `hsl(${hue}, 90%, 60%)`,
+      };
+  };
 
   return (
     <div className="relative h-full w-full rounded-lg overflow-hidden shadow-md border">
@@ -170,7 +204,7 @@ export function ConfigMap({
                 {fovPoints.length > 0 && (
                     <>
                         <Polygon
-                            id={`fov-${selectedCamera?.id}`}
+                            key={`fov-poly-${selectedCamera?.id}`}
                             paths={fovPoints}
                             editable={false}
                             draggable={false}
@@ -181,7 +215,7 @@ export function ConfigMap({
                             fillOpacity={0.3}
                         />
                         {fovPoints.map((point, index) => (
-                            <AdvancedMarker key={`fov-marker-${index}`} position={point}>
+                            <AdvancedMarker key={`fov-marker-${selectedCamera?.id}-${index}`} position={point}>
                                 <Pin background={'#FFC107'} borderColor={'#B28505'} glyphColor={'#000000'}>
                                     <span className="text-sm font-bold">{index + 1}</span>
                                 </Pin>
@@ -195,17 +229,19 @@ export function ConfigMap({
         {activeTab === 'zones' && (
             <>
                 {densityZones.map((zone) => {
+                    const isSelected = selectedZoneId === zone.id;
+                    const { stroke, fill } = getZoneColor(zone, densityZones, isSelected);
+                    
                     return (
                         <Polygon
                             key={zone.id}
-                            id={zone.id}
                             paths={zone.points}
                             editable={false}
                             draggable={false}
-                            strokeColor={selectedZoneId === zone.id ? "#1E88E5" : "#FF5722"}
+                            strokeColor={stroke}
                             strokeOpacity={1}
-                            strokeWeight={selectedZoneId === zone.id ? 4 : 2}
-                            fillColor={selectedZoneId === zone.id ? "#42A5F5" : "#FF5722"}
+                            strokeWeight={isSelected ? 4 : 2}
+                            fillColor={fill}
                             fillOpacity={0.4}
                         />
                     );
