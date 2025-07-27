@@ -4,11 +4,9 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Cpu, FileText, Send, Shield, Camera, Airplay, MessageSquare, Users, AreaChart, Bot, Clock, CheckCircle2, Video } from 'lucide-react';
+import { Cpu, FileText, Send, Shield, Camera, Airplay, MessageSquare, Users, AreaChart, Bot, Clock, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
-import { Button } from '../ui/button';
-import Link from 'next/link';
 
 const NODE_CONFIG = {
   // Inputs
@@ -202,12 +200,6 @@ export function OperationsAgentGrid() {
             Live simulation of AI agents collaborating to manage event security.
             </p>
         </div>
-        <Link href="/video-wall" passHref>
-          <Button variant="outline">
-            <Video className="mr-2" />
-            Go to Video Wall
-          </Button>
-        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-grow">

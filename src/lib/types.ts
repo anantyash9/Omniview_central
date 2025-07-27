@@ -1,4 +1,4 @@
-export type Persona = "Commander" | "Operations Agent" | "Field Responder" | "Config";
+export type Persona = "Commander" | "Operations Agent" | "Field Responder" | "Config" | "Video Wall";
 
 export type Incident = {
   id: string;

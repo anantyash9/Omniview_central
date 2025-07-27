@@ -2,7 +2,7 @@
 
 import { usePersona } from '@/components/persona/persona-provider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Shield, Bot, Settings } from 'lucide-react';
+import { User, Shield, Bot, Settings, Video } from 'lucide-react';
 import type { Persona } from '@/lib/types';
 
 const personaConfig = {
@@ -10,6 +10,7 @@ const personaConfig = {
   'Operations Agent': { icon: Bot, label: 'Operations Agent' },
   'Field Responder': { icon: User, label: 'Field Responder' },
   'Config': { icon: Settings, label: 'Config' },
+  'Video Wall': { icon: Video, label: 'Video Wall' },
 };
 
 export function PersonaSwitcher() {

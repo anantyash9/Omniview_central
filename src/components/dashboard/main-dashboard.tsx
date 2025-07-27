@@ -6,12 +6,14 @@ import { FieldResponderDashboard } from './field-responder-dashboard';
 import { ConfigDashboard } from './config-dashboard';
 import { Card } from '../ui/card';
 import { OperationsAgentGrid } from './operations-agent-grid';
+import { VideoWallContent } from '@/app/video-wall/page';
 
 const dashboards = {
   Commander: <CommanderDashboard />,
   'Operations Agent': <OperationsAgentGrid />,
   'Field Responder': <FieldResponderDashboard />,
   'Config': <ConfigDashboard />,
+  'Video Wall': <VideoWallContent />,
 };
 
 export function MainDashboard() {
