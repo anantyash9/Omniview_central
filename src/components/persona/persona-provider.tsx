@@ -29,25 +29,29 @@ interface PersonaContextType {
 
 const PersonaContext = createContext<PersonaContextType | undefined>(undefined);
 
-// Helper function to get a base64 data URI from an image URL
-const toDataURL = (url: string): Promise<string> => fetch(url)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+// Helper function to get a base64 data URI from an image URL using a canvas
+const toDataURL = (url: string): Promise<string> => new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous'; // Important for CORS
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            return reject(new Error('Could not get canvas context.'));
         }
-        return response.blob();
-    })
-    .then(blob => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-    }))
-    .catch(error => {
-        console.warn(`Failed to fetch stream at ${url}. Using placeholder. Error:`, error);
-        // Fallback to a placeholder data URI
-        return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAAABCAYAAAA/H/aVAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAUSURBVO3BAQEAAAAABIF6f7kLqA8wAlUBASwQ08UAAAAASUVORK5CYII="; // 1x1 black pixel
-    });
+        canvas.height = img.naturalHeight;
+        canvas.width = img.naturalWidth;
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/jpeg')); // Or 'image/png'
+    };
+    img.onerror = (error) => {
+         console.warn(`Failed to fetch stream at ${url}. Using placeholder. Error:`, error);
+        // Fallback to a placeholder data URI if the image fails to load
+        resolve("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAAABCAYAAAA/H/aVAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAUSURBVO3BAQEAAAAABIF6f7kLqA8wAlUBASwQ08UAAAAASUVORK5CYII="); // 1x1 black pixel
+    };
+    img.src = url;
+});
+
 
 export function PersonaProvider({ children }: { children: ReactNode }) {
   const [persona, setPersona] = useState<Persona>('Commander');
