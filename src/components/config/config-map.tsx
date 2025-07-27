@@ -128,11 +128,6 @@ export function ConfigMap({
 }: ConfigMapProps) {
   const center = { lat: 13.062252, lng: 77.475917 };
 
-  useEffect(() => {
-    console.log(`[ConfigMap Render] Active Tab: ${activeTab}. Received ${densityZones.length} density zones.`);
-  }, [activeTab, densityZones]);
-
-
   const handleMapClickHandler = (e: MapMouseEvent) => {
     if (drawingMode) return; // Prevent camera placement while drawing
     if (onMapClick && e.detail.latLng) {
@@ -202,7 +197,6 @@ export function ConfigMap({
         {activeTab === 'zones' && (
             <>
                 {densityZones.map((zone) => {
-                    console.log(`[ConfigMap Render] Rendering zone: ${zone.name} (${zone.id})`);
                     return (
                         <Polygon
                             key={zone.id}

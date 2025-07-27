@@ -146,17 +146,12 @@ export function ConfigDashboard() {
   }
 
   const handleDeleteZone = async (zoneId: string) => {
-    console.log(`[DELETE_INIT] Attempting to delete zone with ID: ${zoneId}`);
     try {
         await deleteDoc(doc(db, "densityZones", zoneId));
-        console.log(`[DELETE_SUCCESS] Successfully deleted zone ${zoneId} from Firestore.`);
-        
-        // Optimistically update UI
+        // Update local state after successful deletion
         const newZones = densityZones.filter(z => z.id !== zoneId)
         setDensityZones(newZones);
         
-        console.log(`[DELETE_STATE_UPDATE] Local state updated. New zone count: ${newZones.length}.`);
-
         if (selectedZoneId === zoneId) {
             setSelectedZoneId(null);
         }
