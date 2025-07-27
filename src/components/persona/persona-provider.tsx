@@ -6,7 +6,7 @@ import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { Persona, Incident, Unit, Camera, CrowdDensityPoint, Briefing, SocialMediaPost, CrowdFlowData, DensityZone } from '@/lib/types';
 import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS, INITIAL_CROWD_FLOW, INITIAL_CAMERAS, INITIAL_DENSITY_ZONES } from '@/lib/mock-data';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, writeBatch, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, writeBatch, doc, setDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 interface PersonaContextType {
   persona: Persona;
@@ -72,20 +72,37 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
 
   const addBrief = async (brief: Briefing) => {
     try {
-      // Add to local state
-      setBriefs(prevBriefs => {
-          const newBriefs = [...prevBriefs, brief];
-          // Ensure briefs are always sorted chronologically
-          return newBriefs.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-      });
-      // Add to Firestore
+      // The onSnapshot listener will handle updating the local state.
+      // We just need to add the new brief to Firestore.
       const briefId = `brief-${Date.now()}`;
       await setDoc(doc(db, "briefs", briefId), brief);
     } catch (error) {
        console.error("Error saving new brief to Firestore: ", error);
     }
   }
+  
+  // Set up Firestore listeners
+  useEffect(() => {
+    // Listener for briefings
+    const q = query(collection(db, "briefs"), orderBy("timestamp", "asc"));
+    const unsubscribeBriefs = onSnapshot(q, (querySnapshot) => {
+        const briefData = querySnapshot.docs.map(doc => doc.data() as Briefing);
+        setBriefs(briefData);
+    }, (error) => {
+        console.error("Error listening to brief updates:", error);
+        // Fallback to mock data if listener fails
+        setBriefs(INITIAL_BRIEFS);
+    });
 
+    // ... other listeners can be added here in the future
+
+    // Cleanup function to unsubscribe from listeners when component unmounts
+    return () => {
+        unsubscribeBriefs();
+    };
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  // Effect for initial data loading and seeding
   useEffect(() => {
     const fetchAndSetData = async () => {
       console.log("Attempting to connect to Firestore...");
@@ -102,7 +119,8 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
           INITIAL_DENSITY_ZONES.forEach(item => batch.set(doc(db, "densityZones", item.id), item));
           INITIAL_INCIDENTS.forEach(item => batch.set(doc(db, "incidents", item.id), item));
           INITIAL_UNITS.forEach(item => batch.set(doc(db, "units", item.id), item));
-          INITIAL_BRIEFS.forEach((item, index) => batch.set(doc(db, "briefs", `brief-${index}`), item));
+          // Briefs are now handled by the listener, but we seed them if needed.
+          INITIAL_BRIEFS.forEach((item) => batch.set(doc(db, "briefs", `brief-${item.timestamp}`), item));
           INITIAL_CROWD_DENSITY.forEach((item, index) => batch.set(doc(db, "crowdDensity", `cd-${index}`), item));
           INITIAL_CROWD_FLOW.forEach((item, index) => batch.set(doc(db, "crowdFlow", `cf-${index}`), item));
 
@@ -114,12 +132,12 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
           setDensityZones(INITIAL_DENSITY_ZONES);
           setIncidents(INITIAL_INCIDENTS);
           setUnits(INITIAL_UNITS);
-          setBriefs(INITIAL_BRIEFS);
+          // Briefs will be set by the snapshot listener
           setCrowdDensity(INITIAL_CROWD_DENSITY);
           setCrowdFlow(INITIAL_CROWD_FLOW);
 
         } else {
-          console.log("Fetching data from Firestore.");
+          console.log("Fetching non-realtime data from Firestore.");
           const cameraData = cameraSnapshot.docs.map(doc => doc.data() as Camera);
           
           const densityZoneSnapshot = await getDocs(collection(db, "densityZones"));
@@ -130,9 +148,6 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
           
           const unitSnapshot = await getDocs(collection(db, "units"));
           const unitData = unitSnapshot.docs.map(doc => doc.data() as Unit);
-
-          const briefSnapshot = await getDocs(collection(db, "briefs"));
-          const briefData = briefSnapshot.docs.map(doc => doc.data() as Briefing);
           
           const crowdDensitySnapshot = await getDocs(collection(db, "crowdDensity"));
           const crowdDensityData = crowdDensitySnapshot.docs.map(doc => doc.data() as CrowdDensityPoint);
@@ -144,7 +159,6 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
           setDensityZones(densityZoneData);
           setIncidents(incidentData);
           setUnits(unitData);
-          setBriefs(briefData.sort((a, b) => a.timestamp.localeCompare(b.timestamp)));
           setCrowdDensity(crowdDensityData);
           setCrowdFlow(crowdFlowData.sort((a,b) => a.time.localeCompare(b.time)));
         }
@@ -155,7 +169,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         setDensityZones(INITIAL_DENSITY_ZONES);
         setIncidents(INITIAL_INCIDENTS);
         setUnits(INITIAL_UNITS);
-        setBriefs(INITIAL_BRIEFS);
+        setBriefs(INITIAL_BRIEFS); // Fallback for briefs
         setCrowdDensity(INITIAL_CROWD_DENSITY);
         setCrowdFlow(INITIAL_CROWD_FLOW);
       }
@@ -165,9 +179,11 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         fetchAndSetData();
         dataLoadedRef.current = true;
     }
+  }, []); // Runs once
 
 
-    // Simulate real-time data updates (this part remains local for simulation purposes)
+  // Simulate real-time data updates (this part remains local for simulation purposes)
+  useEffect(() => {
     const interval = setInterval(() => {
       timeRef.current += 1;
 
