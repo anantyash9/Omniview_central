@@ -23,6 +23,7 @@ const Polygon = (props: google.maps.PolygonOptions) => {
   useEffect(() => {
     if (!map) return;
     
+    // Create the polygon if it doesn't exist
     if (!polygon) {
       const newPolygon = new google.maps.Polygon(props);
       newPolygon.setMap(map);
@@ -39,6 +40,7 @@ const Polygon = (props: google.maps.PolygonOptions) => {
   }, [map]); 
 
   useEffect(() => {
+    // Update polygon options when props change
     if (polygon) {
       polygon.setOptions(props);
     }
