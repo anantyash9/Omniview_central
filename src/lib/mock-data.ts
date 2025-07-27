@@ -31,13 +31,13 @@ export const INITIAL_UNITS: Unit[] = [
 ];
 
 export const INITIAL_CAMERAS: Camera[] = [
-    { id: 'cam-1', name: 'Hall 1 West', isAlert: false, stream: placeholderStreamUrl(1), location: { lat: 13.06265, lng: 77.4758 }, fov: [
+    { id: 'cam-1', name: 'Hall 1 West', isAlert: false, stream: 'http://localhost:8081/original', location: { lat: 13.06265, lng: 77.4758 }, fov: [
         { lat: 13.0628, lng: 77.4757 },
         { lat: 13.0629, lng: 77.4760 },
         { lat: 13.0625, lng: 77.4761 },
         { lat: 13.0624, lng: 77.4758 },
     ] },
-    { id: 'cam-2', name: 'Hall 1 East', isAlert: true, stream: placeholderStreamUrl(2), location: { lat: 13.0626, lng: 77.4762 }, fov: [] },
+    { id: 'cam-2', name: 'Hall 1 East', isAlert: true, stream: 'http://localhost:8082/original', location: { lat: 13.0626, lng: 77.4762 }, fov: [] },
     { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, stream: placeholderStreamUrl(3), location: { lat: 13.0620, lng: 77.4757 }, fov: [] },
     { id: 'cam-4', name: 'Food Court Cam', isAlert: false, stream: placeholderStreamUrl(4), location: { lat: 13.0632, lng: 77.4759 },  fov: [] },
     { id: 'cam-5', name: 'Conference Ctr', isAlert: false, stream: placeholderStreamUrl(5), location: { lat: 13.0633, lng: 77.4761 }, fov: [] },
@@ -59,10 +59,8 @@ export const INITIAL_DENSITY_ZONES: DensityZone[] = [
 ];
 
 export const INITIAL_CROWD_DENSITY: CrowdDensityPoint[] = [
-    { location: { lat: 13.0624, lng: 77.4761 }, density: 0.6 },
-    { location: { lat: 13.0628, lng: 77.4760 }, density: 0.7 },
-    { location: { lat: 13.0629, lng: 77.4758 }, density: 0.9 },
-    { location: { lat: 13.0622, lng: 77.4760 }, density: 0.4 },
+    { location: { lat: 13.0623937, lng: 77.4755506 }, density: 0.9 }, // Bigger heatmap
+    { location: { lat: 13.0628614, lng: 77.475646 }, density: 0.5 },  // Smaller heatmap
 ];
 
 export const INITIAL_CROWD_FLOW: CrowdFlowData[] = [
