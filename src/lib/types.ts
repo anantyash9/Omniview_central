@@ -27,6 +27,7 @@ export type Camera = {
   isAlert: boolean;
   location: { lat: number; lng: number };
   fov: { lat: number; lng: number }[];
+  stream?: string;
 };
 
 export type DensityZone = {

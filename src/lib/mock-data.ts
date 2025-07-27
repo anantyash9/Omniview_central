@@ -1,5 +1,9 @@
 import type { Incident, Unit, Camera, CrowdDensityPoint, Briefing, CrowdFlowData, DensityZone } from "@/lib/types";
 
+// Note: Using placeholder.co for stream URLs as a fallback.
+// In a real scenario, these would be actual multipart stream endpoints.
+const placeholderStreamUrl = (id: number) => `https://placehold.co/640x480.png?text=Cam+${id}`;
+
 export const INITIAL_INCIDENTS: Incident[] = [
   {
     id: 'inc-1',
@@ -27,17 +31,17 @@ export const INITIAL_UNITS: Unit[] = [
 ];
 
 export const INITIAL_CAMERAS: Camera[] = [
-    { id: 'cam-1', name: 'Hall 1 West', isAlert: false, location: { lat: 13.06265, lng: 77.4758 }, fov: [
+    { id: 'cam-1', name: 'Hall 1 West', isAlert: false, stream: placeholderStreamUrl(1), location: { lat: 13.06265, lng: 77.4758 }, fov: [
         { lat: 13.0628, lng: 77.4757 },
         { lat: 13.0629, lng: 77.4760 },
         { lat: 13.0625, lng: 77.4761 },
         { lat: 13.0624, lng: 77.4758 },
     ] },
-    { id: 'cam-2', name: 'Hall 1 East', isAlert: true, location: { lat: 13.0626, lng: 77.4762 }, fov: [] },
-    { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, location: { lat: 13.0620, lng: 77.4757 }, fov: [] },
-    { id: 'cam-4', name: 'Food Court Cam', isAlert: false, location: { lat: 13.0632, lng: 77.4759 },  fov: [] },
-    { id: 'cam-5', name: 'Conference Ctr', isAlert: false, location: { lat: 13.0633, lng: 77.4761 }, fov: [] },
-    { id: 'cam-6', name: 'Service Road Cam', isAlert: false, location: { lat: 13.0621, lng: 77.47625 }, fov: [] },
+    { id: 'cam-2', name: 'Hall 1 East', isAlert: true, stream: placeholderStreamUrl(2), location: { lat: 13.0626, lng: 77.4762 }, fov: [] },
+    { id: 'cam-3', name: 'Parking Lot Cam', isAlert: false, stream: placeholderStreamUrl(3), location: { lat: 13.0620, lng: 77.4757 }, fov: [] },
+    { id: 'cam-4', name: 'Food Court Cam', isAlert: false, stream: placeholderStreamUrl(4), location: { lat: 13.0632, lng: 77.4759 },  fov: [] },
+    { id: 'cam-5', name: 'Conference Ctr', isAlert: false, stream: placeholderStreamUrl(5), location: { lat: 13.0633, lng: 77.4761 }, fov: [] },
+    { id: 'cam-6', name: 'Service Road Cam', isAlert: false, stream: placeholderStreamUrl(6), location: { lat: 13.0621, lng: 77.47625 }, fov: [] },
 ];
 
 export const INITIAL_DENSITY_ZONES: DensityZone[] = [

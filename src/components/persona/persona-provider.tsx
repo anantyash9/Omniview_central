@@ -6,7 +6,7 @@ import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { Persona, Incident, Unit, Camera, CrowdDensityPoint, Briefing, SocialMediaPost, CrowdFlowData, DensityZone } from '@/lib/types';
 import { INITIAL_INCIDENTS, INITIAL_UNITS, INITIAL_CROWD_DENSITY, INITIAL_BRIEFS, MOCK_SOCIAL_POSTS, INITIAL_CROWD_FLOW, INITIAL_CAMERAS, INITIAL_DENSITY_ZONES } from '@/lib/mock-data';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
+import { collection, getDocs, writeBatch, doc, setDoc } from 'firebase/firestore';
 
 interface PersonaContextType {
   persona: Persona;
@@ -14,7 +14,8 @@ interface PersonaContextType {
   incidents: Incident[];
   units: Unit[];
   cameras: Camera[];
-  setCameras: (cameras: Camera[]) => void;
+  setCameras: React.Dispatch<React.SetStateAction<Camera[]>>;
+  saveCamerasToFirestore: (cameras: Camera[]) => Promise<void>;
   densityZones: DensityZone[];
   setDensityZones: React.Dispatch<React.SetStateAction<DensityZone[]>>;
   saveDensityZonesToFirestore: (zones: DensityZone[]) => Promise<void>;
@@ -41,13 +42,13 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   const timeRef = useRef(0);
   const dataLoadedRef = useRef(false);
 
-  const handleSetCameras = async (updatedCameras: Camera[]) => {
-    setCameras(updatedCameras);
+  const saveCamerasToFirestore = async (updatedCameras: Camera[]) => {
     try {
       const batch = writeBatch(db);
       updatedCameras.forEach(camera => {
+        const { ...cameraData } = camera;
         const camRef = doc(db, 'cameras', camera.id);
-        batch.set(camRef, camera);
+        batch.set(camRef, cameraData);
       });
       await batch.commit();
     } catch (error) {
@@ -64,7 +65,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
         });
         await batch.commit();
     } catch (error) {
-        console.error("Error saving density zones to Firestore: ", error);
+      console.error("Error saving density zones to Firestore: ", error);
     }
   };
 
@@ -207,7 +208,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, [crowdDensity, socialMediaPosts.length]);
 
   return (
-    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras: handleSetCameras, densityZones, setDensityZones, saveDensityZonesToFirestore, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
+    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras, saveCamerasToFirestore, densityZones, setDensityZones, saveDensityZonesToFirestore, crowdDensity, briefs, socialMediaPosts, crowdFlow }}>
       {children}
     </PersonaContext.Provider>
   );

@@ -11,13 +11,23 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ConfigMap } from '../config/config-map';
 import { cn } from '@/lib/utils';
-import { CornerDownLeft, MapPin, Layers, Trash2, Pencil } from 'lucide-react';
+import { CornerDownLeft, MapPin, Layers, Trash2, Pencil, Video, Plus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scroll-area';
 import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
 
 type ConfigMode = 'location' | 'fov';
 type FovCorner = 'topLeft' | 'topRight' | 'bottomRight' | 'bottomLeft';
@@ -26,8 +36,50 @@ type ActiveTab = 'cameras' | 'zones';
 
 const CORNERS: FovCorner[] = ['topLeft', 'topRight', 'bottomRight', 'bottomLeft'];
 
+function AddCameraDialog({ onCameraAdd }: { onCameraAdd: (name: string, streamUrl: string) => void }) {
+    const [name, setName] = useState('');
+    const [streamUrl, setStreamUrl] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleSubmit = () => {
+        onCameraAdd(name, streamUrl);
+        setName('');
+        setStreamUrl('');
+        setIsOpen(false);
+    }
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline"><Plus className="mr-2" /> New Camera</Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Add New Camera</DialogTitle>
+                    <DialogDescription>
+                        Enter the details for the new camera. The stream URL should be a valid multipart/x-mixed-replace endpoint.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">Name</Label>
+                        <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="streamUrl" className="text-right">Stream URL</Label>
+                        <Input id="streamUrl" value={streamUrl} onChange={(e) => setStreamUrl(e.target.value)} className="col-span-3" />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button onClick={handleSubmit}>Save Camera</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 export function ConfigDashboard() {
-  const { cameras, setCameras, densityZones, setDensityZones, saveDensityZonesToFirestore } = usePersona();
+  const { cameras, setCameras, saveCamerasToFirestore, densityZones, setDensityZones, saveDensityZonesToFirestore } = usePersona();
   const [activeTab, setActiveTab] = useState<ActiveTab>('cameras');
   
   // Camera State
@@ -55,13 +107,10 @@ export function ConfigDashboard() {
     if (!selectedZoneId) return null;
     return densityZones.find(z => z.id === selectedZoneId) || null;
   }, [densityZones, selectedZoneId]);
-
-  const handleTabChange = (value: string) => {
-    const newTab = value as ActiveTab;
-    setActiveTab(newTab);
-    
-    // Clear context when switching tabs
-    if (newTab === 'cameras') {
+  
+  // When switching tabs, clear the selection from the other tab
+  useEffect(() => {
+    if (activeTab === 'cameras') {
       setSelectedZoneId(null);
       setDrawingMode(null);
     } else { // newTab is 'zones'
@@ -69,11 +118,39 @@ export function ConfigDashboard() {
       setConfigMode('location');
       setSelectedCorner(null);
     }
+  }, [activeTab]);
+
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as ActiveTab);
   };
 
   const handleCameraChange = (cameraId: string) => {
     setSelectedCameraId(cameraId);
+    setConfigMode('location'); // Reset to location mode when camera changes
   };
+  
+  const handleAddCamera = (name: string, streamUrl: string) => {
+    if (!name || !streamUrl) {
+      toast({ variant: 'destructive', title: "Missing Information", description: "Please provide a name and stream URL." });
+      return;
+    }
+    const newCamera: Camera = {
+      id: `cam-${Date.now()}`,
+      name,
+      stream: streamUrl,
+      isAlert: false,
+      location: { lat: 13.0625, lng: 77.4760 }, // Default location
+      fov: [],
+    };
+    
+    const updatedCameras = [...cameras, newCamera];
+    setCameras(updatedCameras);
+    saveCamerasToFirestore(updatedCameras);
+    setSelectedCameraId(newCamera.id); // Select the new camera
+    toast({ title: "Camera Added", description: `${name} has been added.` });
+  };
+
 
   const handleMapClick = (latLng: { lat: number; lng: number }) => {
     if (activeTab === 'cameras') {
@@ -87,6 +164,7 @@ export function ConfigDashboard() {
           c.id === selectedCamera.id ? { ...c, location: latLng } : c
         );
         setCameras(updatedCameras);
+        saveCamerasToFirestore(updatedCameras);
         toast({ title: "Camera Location Updated", description: `New location for ${selectedCamera.name} set.` });
       } else if (configMode === 'fov') {
         if (!selectedCorner) {
@@ -105,6 +183,7 @@ export function ConfigDashboard() {
           c.id === selectedCamera.id ? { ...c, fov: newFov } : c
         );
         setCameras(updatedCameras);
+        saveCamerasToFirestore(updatedCameras);
         toast({ title: "FOV Point Set", description: `Updated ${selectedCorner} for ${selectedCamera.name}.`});
         setSelectedCorner(null);
       }
@@ -123,6 +202,7 @@ export function ConfigDashboard() {
         c.id === selectedCamera.id ? { ...c, fov: [] } : c
       );
       setCameras(updatedCameras);
+      saveCamerasToFirestore(updatedCameras);
       toast({ title: "FOV Cleared", description: `Removed FOV points for ${selectedCamera.name}` });
     }
   }
@@ -135,9 +215,11 @@ export function ConfigDashboard() {
         maxDensity: 5,
     };
 
-    const newZones = [...densityZones, newZone];
-    setDensityZones(newZones);
-    saveDensityZonesToFirestore(newZones);
+    setDensityZones(prevZones => {
+        const newZones = [...prevZones, newZone];
+        saveDensityZonesToFirestore(newZones);
+        return newZones;
+    });
 
     setDrawingMode(null);
     setSelectedZoneId(newZone.id);
@@ -179,21 +261,25 @@ export function ConfigDashboard() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Camera Configuration</CardTitle>
-                        <CardDescription>Select a camera and mode to configure its position and field of view.</CardDescription>
+                        <CardDescription>Select a camera to configure its position and field of view.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <Select onValueChange={handleCameraChange} value={selectedCameraId ?? ""}>
-                        <SelectTrigger>
-                            <SelectValue placeholder={cameras.length > 0 ? "Select a camera..." : "Loading cameras..."} />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {cameras.length > 0 ? cameras.map(camera => (
-                            <SelectItem key={camera.id} value={camera.id}>
-                                {camera.name}
-                            </SelectItem>
-                            )) : <SelectItem value="loading" disabled>Loading...</SelectItem>}
-                        </SelectContent>
-                        </Select>
+                        <div className="flex justify-between items-center">
+                            <Select onValueChange={handleCameraChange} value={selectedCameraId ?? ""}>
+                                <SelectTrigger className="w-[calc(100%-4.5rem)]">
+                                    <SelectValue placeholder={cameras.length > 0 ? "Select a camera..." : "Loading cameras..."} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {cameras.length > 0 ? cameras.map(camera => (
+                                    <SelectItem key={camera.id} value={camera.id}>
+                                        {camera.name}
+                                    </SelectItem>
+                                    )) : <SelectItem value="loading" disabled>Loading...</SelectItem>}
+                                </SelectContent>
+                            </Select>
+                            <AddCameraDialog onCameraAdd={handleAddCamera} />
+                        </div>
+
 
                         {selectedCamera && (
                         <div className="space-y-4">
@@ -275,15 +361,23 @@ export function ConfigDashboard() {
             </CardHeader>
             <CardContent>
               <div className="relative rounded-lg overflow-hidden border shadow-sm aspect-video bg-black">
-                <video
-                  key={selectedCamera.id}
-                  src={`/cameras/${selectedCamera.id}.mp4`}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
+                {selectedCamera.stream ? (
+                    <img
+                        key={selectedCamera.id}
+                        src={selectedCamera.stream}
+                        alt={`${selectedCamera.name} Stream`}
+                        className="w-full h-full object-cover"
+                        // Add error handling for better UX
+                        onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = 'https://placehold.co/640x480/000000/FFFFFF/png?text=Stream+Error';
+                        }}
+                    />
+                ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <Video className="w-10 h-10 text-muted-foreground" />
+                    </div>
+                )}
                 <div className="absolute inset-0">
                   {CORNERS.map((corner, index) => {
                     const positionClasses = {
