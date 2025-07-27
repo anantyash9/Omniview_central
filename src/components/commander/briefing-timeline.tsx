@@ -60,6 +60,7 @@ export function BriefingTimeline() {
             timestamp,
         };
         const result = await generateCommanderBrief(input);
+        console.log('Generated Briefing:', result);
         if ('error' in result) {
             toast({
                 variant: 'destructive',
@@ -156,5 +157,6 @@ export function BriefingTimeline() {
     </div>
   );
 }
+
 
 
