@@ -24,9 +24,20 @@ interface PersonaContextType {
   addBrief: (brief: Briefing) => Promise<void>;
   socialMediaPosts: SocialMediaPost[];
   crowdFlow: CrowdFlowData[];
+  getCameraFrames: () => Promise<{ cameraName: string; frameDataUri: string }[]>;
 }
 
 const PersonaContext = createContext<PersonaContextType | undefined>(undefined);
+
+// Helper function to get a base64 data URI from an image URL
+const toDataURL = (url: string): Promise<string> => fetch(url)
+    .then(response => response.blob())
+    .then(blob => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    }));
 
 export function PersonaProvider({ children }: { children: ReactNode }) {
   const [persona, setPersona] = useState<Persona>('Commander');
@@ -75,23 +86,37 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
       // The onSnapshot listener will handle updating the local state.
       // We just need to add the new brief to Firestore.
       const briefId = `brief-${Date.now()}`;
-      await setDoc(doc(db, "briefs", briefId), brief);
+      await setDoc(doc(db, "briefs", briefId), { ...brief, timestamp: new Date().toISOString() });
     } catch (error) {
        console.error("Error saving new brief to Firestore: ", error);
     }
   }
   
+  const getCameraFrames = async (): Promise<{ cameraName: string; frameDataUri: string }[]> => {
+    const framePromises = cameras.map(async (camera) => {
+        // In a real application, you'd have a mechanism to grab a live frame.
+        // For this prototype, we'll convert the placeholder URL to a data URI
+        // to simulate having the raw image data needed for the multimodal prompt.
+        const frameDataUri = await toDataURL(camera.stream || 'https://placehold.co/640x480.png?text=No+Stream');
+        return {
+            cameraName: camera.name,
+            frameDataUri,
+        };
+    });
+    return Promise.all(framePromises);
+  };
+  
   // Set up Firestore listeners
   useEffect(() => {
     // Listener for briefings
-    const q = query(collection(db, "briefs"), orderBy("timestamp", "asc"));
+    const q = query(collection(db, "briefs"), orderBy("timestamp", "desc"));
     const unsubscribeBriefs = onSnapshot(q, (querySnapshot) => {
         const briefData = querySnapshot.docs.map(doc => doc.data() as Briefing);
         setBriefs(briefData);
     }, (error) => {
         console.error("Error listening to brief updates:", error);
         // Fallback to mock data if listener fails
-        setBriefs(INITIAL_BRIEFS);
+        setBriefs(INITIAL_BRIEFS.sort((a, b) => b.timestamp.localeCompare(a.timestamp)));
     });
 
     // ... other listeners can be added here in the future
@@ -120,7 +145,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
           INITIAL_INCIDENTS.forEach(item => batch.set(doc(db, "incidents", item.id), item));
           INITIAL_UNITS.forEach(item => batch.set(doc(db, "units", item.id), item));
           // Briefs are now handled by the listener, but we seed them if needed.
-          INITIAL_BRIEFS.forEach((item) => batch.set(doc(db, "briefs", `brief-${item.timestamp}`), item));
+          INITIAL_BRIEFS.forEach((item, index) => batch.set(doc(db, "briefs", `brief-${index}`), { ...item, timestamp: new Date(Date.now() - (INITIAL_BRIEFS.length - index) * 60000).toISOString() }));
           INITIAL_CROWD_DENSITY.forEach((item, index) => batch.set(doc(db, "crowdDensity", `cd-${index}`), item));
           INITIAL_CROWD_FLOW.forEach((item, index) => batch.set(doc(db, "crowdFlow", `cf-${index}`), item));
 
@@ -241,7 +266,7 @@ export function PersonaProvider({ children }: { children: ReactNode }) {
   }, [crowdDensity, socialMediaPosts.length]);
 
   return (
-    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras, saveCamerasToFirestore, densityZones, setDensityZones, saveDensityZonesToFirestore, crowdDensity, briefs, addBrief, socialMediaPosts, crowdFlow }}>
+    <PersonaContext.Provider value={{ persona, setPersona, incidents, units, cameras, setCameras, saveCamerasToFirestore, densityZones, setDensityZones, saveDensityZonesToFirestore, crowdDensity, briefs, addBrief, socialMediaPosts, crowdFlow, getCameraFrames }}>
       {children}
     </PersonaContext.Provider>
   );

@@ -6,6 +6,8 @@ import { generateCommanderBrief as generateBrief } from '@/ai/flows/generate-com
 import type { GenerateCommanderBriefInput, GenerateCommanderBriefOutput } from '@/ai/flows/generate-commander-brief';
 import { summarizeSocialMedia as summarize } from '@/ai/flows/summarize-social-media';
 import type { SummarizeSocialMediaInput, SummarizeSocialMediaOutput } from '@/ai/flows/summarize-social-media';
+import { findObjectInStreams as findObject } from '@/ai/flows/find-object-in-streams';
+import type { FindObjectInput, FindObjectOutput } from '@/ai/flows/find-object-in-streams';
 
 export async function generateIncidentSuggestions(input: GenerateIncidentSuggestionsInput): Promise<GenerateIncidentSuggestionsOutput | { error: string }> {
   try {
@@ -37,6 +39,15 @@ export async function summarizeSocialMedia(input: SummarizeSocialMediaInput): Pr
     }
 }
 
+export async function findObjectInStreams(input: FindObjectInput): Promise<FindObjectOutput | { error: string }> {
+    try {
+        const output = await findObject(input);
+        return output;
+    } catch (e: any) {
+        console.error(e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
 
 export async function getPlacePhotoReferences(query: string): Promise<string[]> {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
