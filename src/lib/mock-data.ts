@@ -1,3 +1,4 @@
+
 import type { Incident, Unit, Camera, CrowdDensityPoint, Briefing, CrowdFlowData, DensityZone } from "@/lib/types";
 
 // Note: Using placeholder.co for stream URLs as a fallback.
@@ -59,8 +60,8 @@ export const INITIAL_DENSITY_ZONES: DensityZone[] = [
 ];
 
 export const INITIAL_CROWD_DENSITY: CrowdDensityPoint[] = [
-    { location: { lat: 13.0623937, lng: 77.4755506 }, density: 0.9 }, // Bigger heatmap
-    { location: { lat: 13.0628614, lng: 77.475646 }, density: 0.5 },  // Smaller heatmap
+    { location: { lat: 13.062417, lng: 77.475917 }, density: 0.9 }, // Bigger heatmap
+    { location: { lat: 13.062722, lng: 77.475833 }, density: 0.5 },  // Smaller heatmap
 ];
 
 export const INITIAL_CROWD_FLOW: CrowdFlowData[] = [
