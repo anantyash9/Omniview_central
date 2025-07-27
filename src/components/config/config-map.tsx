@@ -22,12 +22,12 @@ const Polygon = (props: google.maps.PolygonOptions) => {
     const [polygon, setPolygon] = useState<google.maps.Polygon | null>(null);
 
     useEffect(() => {
-        if (!map) return;
-        if (!polygon) {
+        if (map && !polygon) {
             const newPolygon = new google.maps.Polygon(props);
             newPolygon.setMap(map);
             setPolygon(newPolygon);
         }
+
         return () => {
             if (polygon) {
                 polygon.setMap(null);

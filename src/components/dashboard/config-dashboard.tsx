@@ -16,6 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scroll-area';
+import { deleteDoc, doc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 type ConfigMode = 'location' | 'fov';
 type FovCorner = 'topLeft' | 'topRight' | 'bottomRight' | 'bottomLeft';
@@ -143,12 +145,18 @@ export function ConfigDashboard() {
     setDensityZones(updatedZones);
   }
 
-  const handleDeleteZone = (zoneId: string) => {
-    setDensityZones(densityZones.filter(z => z.id !== zoneId));
-    if (selectedZoneId === zoneId) {
-        setSelectedZoneId(null);
+  const handleDeleteZone = async (zoneId: string) => {
+    try {
+        await deleteDoc(doc(db, "densityZones", zoneId));
+        setDensityZones(densityZones.filter(z => z.id !== zoneId));
+        if (selectedZoneId === zoneId) {
+            setSelectedZoneId(null);
+        }
+        toast({ title: "Zone Deleted" });
+    } catch (error) {
+        console.error("Error deleting zone: ", error);
+        toast({ variant: "destructive", title: "Error", description: "Could not delete zone." });
     }
-    toast({ title: "Zone Deleted" });
   }
 
   return (
